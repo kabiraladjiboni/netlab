@@ -131,7 +131,7 @@ return [
     // et impose Secure + Path=/ (OWASP ASVS 3.4.4).
     'cookie' => env(
         'SESSION_COOKIE',
-        (env('APP_ENV') === 'production' && str_starts_with((string) env('APP_URL'), 'https://') ? '__Host-' : '')
+        (env('APP_ENV') === 'production' && str_starts_with((string) env('APP_URL', env('RENDER_EXTERNAL_URL')), 'https://') ? '__Host-' : '')
             .Str::slug((string) env('APP_NAME', 'laravel')).'-session'
     ),
 
@@ -172,7 +172,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', str_starts_with((string) env('APP_URL'), 'https://')),
+    'secure' => env('SESSION_SECURE_COOKIE', str_starts_with((string) env('APP_URL', env('RENDER_EXTERNAL_URL')), 'https://')),
 
     /*
     |--------------------------------------------------------------------------

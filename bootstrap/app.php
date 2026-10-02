@@ -32,7 +32,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // Production : seules les requêtes adressées au domaine d'APP_URL sont acceptées
         // (protège les liens générés contre les en-têtes Host forgés).
         $middleware->trustHosts(
-            at: fn () => config('app.env') === 'production' ? array_filter([parse_url((string) config('app.url'), PHP_URL_HOST)]) : [],
+            // + l'adresse attribuée par Render et les contrôles internes de l'hébergeur (localhost).
+            at: fn () => config('app.env') === 'production' ? array_values(array_unique(array_filter([
+                parse_url((string) config('app.url'), PHP_URL_HOST),
+                env('RENDER_EXTERNAL_HOSTNAME'),
+                'localhost',
+                '127.0.0.1',
+            ]))) : [],
             subdomains: false,
         );
         // Le contrôle « administrateur » passe AVANT la résolution des modèles de route :

@@ -49,6 +49,8 @@ class AppServiceProvider extends ServiceProvider
         // Production : liens générés en HTTPS lorsque l'adresse publique est en HTTPS.
         if ($this->app->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
             URL::forceScheme('https');
+            // Liens (e-mails, redirections) toujours construits sur l'adresse officielle.
+            URL::forceRootUrl((string) config('app.url'));
         }
 
         // L'assistant peut appeler une API payante : on limite le nombre de questions.

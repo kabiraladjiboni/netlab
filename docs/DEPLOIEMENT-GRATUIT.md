@@ -48,7 +48,6 @@ Copie le résultat (`base64:…`).
 | Variable | Valeur |
 | --- | --- |
 | `APP_KEY` | la clé de l’étape 3 |
-| `APP_URL` | `https://aboro-labs.onrender.com` (adapte-la si Render donne un autre nom) |
 | `DB_URL` | la chaîne Neon de l’étape 2 |
 | `NETLAB_ADMIN_EMAIL` | ton adresse |
 | `NETLAB_ADMIN_PASSWORD` | un mot de passe d’au moins 12 caractères, utilisé une seule fois |
@@ -61,7 +60,9 @@ Au premier démarrage, le conteneur :
 - importe le contenu pédagogique (89 fiches, 82 termes…) ;
 - crée ton compte administrateur.
 
-Si Render attribue une autre adresse que celle de `APP_URL`, corrige `APP_URL` dans **Environment**, puis choisis **Manual Deploy**.
+L’adresse publique attribuée par Render (par exemple `https://netlab-xxxx.onrender.com`) est détectée automatiquement. **Ne définis pas `APP_URL`**, sauf plus tard pour un nom de domaine personnel ; dans ce cas, elle doit être exactement l’adresse du site, sinon toutes les pages répondent par une erreur 400.
+
+**Ajouter ou modifier une variable plus tard** : sur dashboard.render.com, ouvre le service, va dans **Environment**, clique sur **Edit** puis **Add**, et enregistre avec **Save, rebuild, and deploy**.
 
 ## Étape 5 : premier accès
 

@@ -17,6 +17,11 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
+    // Rendu serveur : tout est inclus dans bootstrap/ssr (aucun node_modules nécessaire
+    // sur l'hébergeur, l'image Docker ne contient que Node).
+    ssr: {
+        noExternal: true,
+    },
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./resources/js', import.meta.url)),

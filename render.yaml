@@ -14,8 +14,6 @@ services:
         value: Abòrò Labs
       - key: APP_KEY
         sync: false
-      - key: APP_URL
-        sync: false
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_URL
