@@ -1,0 +1,227 @@
+[
+    {
+        "slug": "tcp",
+        "acronym": "TCP",
+        "name": "Transmission Control Protocol",
+        "category": "transport",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Le transport fiable d'Internet : connexion, livraison dans l'ordre, retransmission des pertes et contrôle du débit.",
+        "problem": "IP peut perdre, dupliquer ou désordonner des paquets. Les applications comme le Web ou la messagerie ont besoin que toutes les données arrivent, dans l'ordre et sans erreur.",
+        "beginner": "TCP établit d'abord une connexion par une « poignée de main » en trois messages. Ensuite, il numérote chaque morceau de données ; le destinataire confirme ce qu'il a reçu, et TCP renvoie ce qui s'est perdu. Il ralentit aussi quand le réseau est encombré.",
+        "analogy": "Un envoi en recommandé avec accusé de réception, page par page, en renvoyant les pages perdues.",
+        "real_example": "Une page Web en HTTPS (HTTP/1.1 ou HTTP/2) est transportée par TCP vers le port 443.",
+        "osi_note": "Couche 4 (transport).",
+        "tcpip_note": "Couche transport. Numéro de protocole IP : 6.",
+        "layers": ["osi-4", "tcpip-3"],
+        "ports": [],
+        "communication": [
+            {"from": "Client", "to": "Serveur", "message": "SYN, seq = x : je veux ouvrir une connexion"},
+            {"from": "Serveur", "to": "Client", "message": "SYN-ACK, seq = y, ack = x + 1 : d'accord, et voici mon numéro de départ"},
+            {"from": "Client", "to": "Serveur", "message": "ACK, ack = y + 1 : connexion établie"},
+            {"from": "Client ↔ Serveur", "to": "", "message": "Données numérotées et acquittements ; retransmission en cas de perte"},
+            {"from": "Client ↔ Serveur", "to": "", "message": "Fermeture : FIN puis ACK dans chaque sens (ou RST pour interrompre)"}
+        ],
+        "fields": [
+            {"name": "Ports source et destination", "size": "16 bits chacun", "description": "Identifient les programmes aux deux extrémités."},
+            {"name": "Numéro de séquence", "size": "32 bits", "description": "Position du premier octet de données du segment (ISN choisi aléatoirement à l'ouverture)."},
+            {"name": "Numéro d'acquittement", "size": "32 bits", "description": "Prochain octet attendu de l'autre côté (valide si ACK est positionné)."},
+            {"name": "Longueur d'en-tête", "size": "4 bits", "description": "En mots de 32 bits : de 20 à 60 octets."},
+            {"name": "Drapeaux", "size": "8 bits", "description": "CWR, ECE, URG, ACK, PSH, RST, SYN, FIN."},
+            {"name": "Fenêtre", "size": "16 bits", "description": "Espace de réception disponible (contrôle de flux), à multiplier par le facteur d'échelle négocié."},
+            {"name": "Somme de contrôle", "size": "16 bits", "description": "Couvre en-tête, données et pseudo-en-tête IP."},
+            {"name": "Pointeur urgent", "size": "16 bits", "description": "Rarement utilisé."},
+            {"name": "Options", "size": "0 à 40 octets", "description": "MSS, Window Scale, SACK, horodatage (TSval/TSecr)…"}
+        ],
+        "packet_example": {
+            "title": "Poignée de main dans Wireshark",
+            "lines": [
+                "1  0.000000  192.168.1.10   198.51.100.20  TCP  74  51514 → 443 [SYN] Seq=0 Win=64240 Len=0 MSS=1460 SACK_PERM TSval=… WS=128",
+                "2  0.030882  198.51.100.20  192.168.1.10   TCP  74  443 → 51514 [SYN, ACK] Seq=0 Ack=1 Win=65160 Len=0 MSS=1460 SACK_PERM TSval=… WS=128",
+                "3  0.030951  192.168.1.10   198.51.100.20  TCP  66  51514 → 443 [ACK] Seq=1 Ack=1 Win=64256 Len=0 TSval=…"
+            ],
+            "note": "Numéros de séquence relatifs : Wireshark soustrait le numéro initial pour faciliter la lecture."
+        },
+        "mistakes": [
+            "Croire que TCP garantit un délai : il garantit la livraison et l'ordre, pas la rapidité.",
+            "Penser que « Seq=0 » est la vraie valeur : c'est un numéro relatif affiché par Wireshark.",
+            "Croire qu'une connexion TCP est un câble réservé : c'est un état mémorisé aux deux extrémités."
+        ],
+        "limits": [
+            "La poignée de main ajoute un aller-retour avant les données (et TLS en ajoute au moins un autre).",
+            "Blocage en tête de ligne : une perte retarde toutes les données suivantes de la connexion.",
+            "Les connexions sont liées aux adresses et ports : un changement de réseau les interrompt."
+        ],
+        "variants": ["Algorithmes de congestion : Reno, CUBIC, BBR", "ECN (RFC 3168)", "TCP Fast Open (RFC 7413)", "MPTCP (multi-chemins)"],
+        "references": [
+            {"label": "RFC 9293 — Transmission Control Protocol", "url": "https://www.rfc-editor.org/rfc/rfc9293"},
+            {"label": "RFC 7323 — Extensions TCP pour la haute performance", "url": "https://www.rfc-editor.org/rfc/rfc7323"},
+            {"label": "RFC 5681 — Contrôle de congestion TCP", "url": "https://www.rfc-editor.org/rfc/rfc5681"}
+        ],
+        "related": [
+            {"slug": "udp", "type": "alternative"},
+            {"slug": "quic", "type": "alternative", "note": "Transport moderne qui reprend la fiabilité de TCP au-dessus d'UDP."},
+            {"slug": "ipv4", "type": "uses"},
+            {"slug": "tls", "type": "used-by"},
+            {"slug": "http-1-1", "type": "used-by"},
+            {"slug": "ssh", "type": "used-by"}
+        ],
+        "terms": ["handshake", "segment", "port", "drapeau-tcp", "numero-de-sequence", "fenetre-tcp", "retransmission-tcp", "congestion", "mss"],
+        "scenario_key": "tcp-handshake",
+        "lesson_slug": "tcp-handshake"
+    },
+    {
+        "slug": "udp",
+        "acronym": "UDP",
+        "name": "User Datagram Protocol",
+        "category": "transport",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Le transport le plus simple : envoyer un message vers un port, sans connexion ni garantie de livraison.",
+        "problem": "Certaines applications préfèrent la rapidité et la simplicité à la fiabilité, ou gèrent elles-mêmes les pertes (DNS, voix, jeux, QUIC).",
+        "beginner": "UDP envoie directement le message, sans demander la permission et sans vérifier qu'il est arrivé. C'est très léger et rapide ; si un message se perd, c'est à l'application de réagir.",
+        "analogy": "Une carte postale : pas d'accusé de réception, mais simple et rapide.",
+        "real_example": "Une requête DNS, un flux de voix sur IP (RTP) ou une connexion QUIC voyagent en UDP.",
+        "osi_note": "Couche 4.",
+        "tcpip_note": "Couche transport. Numéro de protocole IP : 17.",
+        "layers": ["osi-4", "tcpip-3"],
+        "ports": [],
+        "communication": [
+            {"from": "Client", "to": "Serveur DNS", "message": "Datagramme UDP vers le port 53 contenant la question"},
+            {"from": "Serveur DNS", "to": "Client", "message": "Datagramme UDP de réponse", "note": "Si rien ne revient, c'est l'application qui renvoie la question après un délai."}
+        ],
+        "fields": [
+            {"name": "Port source", "size": "16 bits", "description": "Port de l'émetteur (facultatif : 0 si aucune réponse n'est attendue)."},
+            {"name": "Port destination", "size": "16 bits", "description": "Service visé."},
+            {"name": "Longueur", "size": "16 bits", "description": "En-tête (8 octets) + données."},
+            {"name": "Somme de contrôle", "size": "16 bits", "description": "Facultative en IPv4, obligatoire en IPv6."}
+        ],
+        "packet_example": {
+            "title": "Datagramme UDP dans Wireshark",
+            "lines": [
+                "User Datagram Protocol, Src Port: 53112, Dst Port: 53",
+                "    Length: 41",
+                "    Checksum: 0x… [unverified]",
+                "Domain Name System (query)"
+            ]
+        },
+        "mistakes": [
+            "Croire qu'UDP est « mauvais » : il est parfait quand la rapidité prime ou quand l'application gère la fiabilité.",
+            "Penser qu'UDP n'utilise pas de ports : il en utilise, comme TCP.",
+            "Croire qu'un pare-feu ou un NAT sait quand une « session » UDP se termine : il utilise des délais d'expiration."
+        ],
+        "limits": ["Aucune garantie de livraison, d'ordre ni de contrôle de congestion intégré.", "Peut être détourné pour des attaques par amplification (réponses plus grosses que les requêtes)."],
+        "variants": ["UDP-Lite (RFC 3828)"],
+        "references": [{"label": "RFC 768 — User Datagram Protocol", "url": "https://www.rfc-editor.org/rfc/rfc768"}],
+        "related": [
+            {"slug": "tcp", "type": "alternative"},
+            {"slug": "quic", "type": "used-by"},
+            {"slug": "dns", "type": "used-by"},
+            {"slug": "dhcpv4", "type": "used-by"},
+            {"slug": "rtp", "type": "used-by"}
+        ],
+        "terms": ["datagramme", "port", "perte-de-paquets"]
+    },
+    {
+        "slug": "quic",
+        "acronym": "QUIC",
+        "name": "QUIC",
+        "category": "transport",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Un transport moderne, chiffré par défaut, construit au-dessus d'UDP ; c'est la base de HTTP/3.",
+        "problem": "TCP + TLS demandent plusieurs allers-retours avant d'échanger des données, une perte bloque tous les flux d'une connexion, et un changement de réseau coupe la connexion.",
+        "beginner": "QUIC combine en une seule étape l'ouverture de connexion et le chiffrement. Il transporte plusieurs flux indépendants : si un paquet se perd, seul son flux attend. Il peut même survivre au passage du Wi-Fi à la 4G.",
+        "analogy": "Une autoroute à plusieurs voies indépendantes : un accident sur une voie ne bloque pas les autres.",
+        "real_example": "Les grands sites et navigateurs modernes utilisent HTTP/3 sur QUIC (UDP 443) quand le réseau le permet.",
+        "osi_note": "Assure les fonctions de la couche 4, avec un chiffrement intégré (TLS 1.3).",
+        "tcpip_note": "Couche transport, mais implémenté dans les applications au-dessus d'UDP.",
+        "layers": ["osi-4", "tcpip-3"],
+        "ports": [{"number": "443", "transport": "UDP", "note": "HTTP/3 (pas de port imposé par QUIC lui-même)"}],
+        "communication": [
+            {"from": "Client", "to": "Serveur", "message": "Initial : TLS ClientHello dans une trame CRYPTO (datagramme ≥ 1200 octets)"},
+            {"from": "Serveur", "to": "Client", "message": "Initial (ServerHello) + Handshake (certificat, Finished)"},
+            {"from": "Client", "to": "Serveur", "message": "Handshake (Finished) puis données applicatives en paquets 1-RTT", "note": "En reprise de session, des données 0-RTT peuvent partir dès le premier envoi."}
+        ],
+        "fields": [
+            {"name": "En-tête long / court", "size": "1 bit (Header Form)", "description": "Long pendant l'établissement (Initial, Handshake, 0-RTT, Retry), court ensuite."},
+            {"name": "Version", "size": "32 bits", "description": "0x00000001 pour QUIC v1 (en-tête long seulement)."},
+            {"name": "Connection IDs", "size": "0 à 20 octets", "description": "Identifient la connexion indépendamment des adresses et ports."},
+            {"name": "Numéro de paquet", "size": "1 à 4 octets", "description": "Protégé (masqué) ; jamais réutilisé, même pour une retransmission."},
+            {"name": "Trames", "size": "variable", "description": "STREAM, ACK, CRYPTO, PADDING, CONNECTION_CLOSE… (chiffrées)."}
+        ],
+        "packet_example": {
+            "title": "Ouverture QUIC dans Wireshark",
+            "lines": [
+                "1  0.000  192.168.1.10   198.51.100.20  QUIC  1242  Initial, DCID=…, PKN: 0, CRYPTO, PADDING",
+                "2  0.031  198.51.100.20  192.168.1.10   QUIC  1242  Initial, SCID=…, PKN: 0, ACK, CRYPTO / Handshake",
+                "3  0.032  192.168.1.10   198.51.100.20  QUIC  …     Handshake, PKN: 0, ACK, CRYPTO / Protected Payload (KP0)"
+            ],
+            "note": "Sans les clés de session, Wireshark ne peut déchiffrer que les paquets Initial."
+        },
+        "mistakes": [
+            "Dire que QUIC est « UDP non fiable » : QUIC réimplémente fiabilité, ordre par flux et contrôle de congestion.",
+            "Croire que QUIC remplace IP : il fonctionne au-dessus d'UDP et d'IP.",
+            "Penser qu'un pare-feu peut inspecter QUIC comme TCP : presque tout l'en-tête est chiffré."
+        ],
+        "limits": ["Certains réseaux bloquent UDP 443 : les navigateurs reviennent alors à TCP + TLS.", "Coût processeur plus élevé, l'implémentation étant faite dans l'application."],
+        "variants": ["QUIC v2 (RFC 9369)", "HTTP/3", "DNS over QUIC"],
+        "references": [
+            {"label": "RFC 9000 — QUIC: A UDP-Based Multiplexed and Secure Transport", "url": "https://www.rfc-editor.org/rfc/rfc9000"},
+            {"label": "RFC 9001 — Using TLS to Secure QUIC", "url": "https://www.rfc-editor.org/rfc/rfc9001"},
+            {"label": "RFC 9002 — Détection des pertes et contrôle de congestion", "url": "https://www.rfc-editor.org/rfc/rfc9002"}
+        ],
+        "related": [
+            {"slug": "udp", "type": "uses"},
+            {"slug": "tls", "type": "uses", "note": "Négociation TLS 1.3 intégrée."},
+            {"slug": "http-3", "type": "used-by"},
+            {"slug": "tcp", "type": "alternative"}
+        ],
+        "terms": ["quic", "udp", "http-3", "handshake", "congestion"],
+        "lesson_slug": "acces-internet"
+    },
+    {
+        "slug": "sctp",
+        "acronym": "SCTP",
+        "name": "Stream Control Transmission Protocol",
+        "category": "transport",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Transport fiable orienté messages, avec plusieurs flux et plusieurs adresses par association.",
+        "problem": "La signalisation des réseaux télécoms a besoin d'un transport fiable, résistant aux pannes de lien et sans blocage d'un flux par un autre.",
+        "beginner": "SCTP est un cousin de TCP très utilisé dans les réseaux mobiles. Une même connexion peut utiliser plusieurs chemins réseau et transporter plusieurs conversations indépendantes.",
+        "analogy": "Un câble avec plusieurs fils indépendants, branché sur deux prises différentes en secours.",
+        "osi_note": "Couche 4.",
+        "tcpip_note": "Couche transport. Numéro de protocole IP : 132.",
+        "layers": ["osi-4", "tcpip-3"],
+        "ports": [],
+        "mistakes": ["Croire que SCTP est très répandu sur le Web : il sert surtout dans les télécoms (SIGTRAN, Diameter, interfaces S1/NG des réseaux 4G/5G) et dans WebRTC (au-dessus de DTLS)."],
+        "limits": ["Mal pris en charge par de nombreux NAT et pare-feu domestiques."],
+        "variants": ["Établissement en quatre messages avec cookie : INIT, INIT-ACK, COOKIE-ECHO, COOKIE-ACK"],
+        "references": [{"label": "RFC 9260 — Stream Control Transmission Protocol", "url": "https://www.rfc-editor.org/rfc/rfc9260"}],
+        "related": [{"slug": "tcp", "type": "alternative"}, {"slug": "ipv4", "type": "uses"}],
+        "terms": ["port", "handshake"]
+    },
+    {
+        "slug": "dccp",
+        "acronym": "DCCP",
+        "name": "Datagram Congestion Control Protocol",
+        "category": "transport",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Transport de datagrammes non fiables mais avec contrôle de congestion. Usage spécialisé et rare.",
+        "problem": "Offrir aux applications temps réel un transport non fiable qui respecte tout de même la congestion du réseau.",
+        "beginner": "DCCP est entre UDP et TCP : il ne renvoie pas les messages perdus, mais il ralentit quand le réseau est encombré.",
+        "analogy": "Des cartes postales envoyées à un rythme qui s'adapte à l'encombrement de la poste.",
+        "osi_note": "Couche 4.",
+        "tcpip_note": "Couche transport. Numéro de protocole IP : 33.",
+        "layers": ["osi-4", "tcpip-3"],
+        "ports": [],
+        "mistakes": ["Le présenter comme courant : il est très peu déployé, les applications temps réel utilisant UDP (RTP) ou QUIC."],
+        "limits": ["Faible prise en charge par les systèmes, NAT et pare-feu."],
+        "variants": [],
+        "references": [{"label": "RFC 4340 — Datagram Congestion Control Protocol", "url": "https://www.rfc-editor.org/rfc/rfc4340"}],
+        "related": [{"slug": "udp", "type": "alternative"}, {"slug": "tcp", "type": "alternative"}],
+        "terms": ["congestion", "datagramme"]
+    }
+]

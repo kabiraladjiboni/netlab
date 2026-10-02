@@ -1,0 +1,170 @@
+[
+    {"slug": "quiz-acces-internet", "title": "Quiz — Accéder à Internet", "module": "lecons", "questions": [
+        {"type": "order", "prompt": "Remets dans l'ordre les étapes d'une première visite de https://www.example.com.",
+         "items": ["Le navigateur cherche l'adresse IP du nom (DNS)", "L'ordinateur envoie un SYN vers le serveur", "La box traduit l'adresse source (NAT)", "Le serveur répond par un SYN-ACK", "La négociation TLS a lieu", "La requête HTTP chiffrée est envoyée"],
+         "explanation": "Il faut d'abord l'adresse IP (DNS), puis ouvrir la connexion TCP (SYN, traduit par la box, puis SYN-ACK), puis sécuriser la connexion (TLS) avant d'envoyer la requête HTTP."},
+        {"type": "single", "prompt": "Quand l'ordinateur envoie le SYN vers le serveur, quelle est l'adresse MAC de destination de la trame ?",
+         "options": ["L'adresse MAC du serveur Web", "L'adresse MAC de la box (la passerelle)", "ff:ff:ff:ff:ff:ff", "Il n'y a pas d'adresse MAC dans une trame"], "answer": 1,
+         "explanation": "L'adresse MAC désigne le prochain équipement sur le lien local. Le serveur étant hors du réseau local, la trame est adressée à la passerelle ; l'adresse IP de destination, elle, reste celle du serveur."},
+        {"type": "multiple", "prompt": "Lors de la traduction NAT/PAT sortante, quels champs la box modifie-t-elle ?",
+         "options": ["L'adresse IP source", "Le port source", "L'adresse IP de destination", "Le port de destination", "Les sommes de contrôle"], "answer": [0, 1, 4],
+         "explanation": "La box remplace l'adresse et le port source et recalcule les sommes de contrôle. La destination (IP et port) ne change pas. Le TTL change aussi, mais parce que la box route le paquet, pas à cause du NAT."},
+        {"type": "single", "prompt": "Quelle adresse IP le serveur Web voit-il comme source de la connexion ?",
+         "options": ["192.168.1.10 (l'ordinateur)", "203.0.113.25 (l'adresse publique de la box)", "192.168.1.1 (l'adresse locale de la box)", "192.0.2.53 (le résolveur DNS)"], "answer": 1,
+         "explanation": "Après le NAT, toutes les connexions du foyer apparaissent avec l'adresse publique de la box. Le serveur ne voit jamais l'adresse privée."},
+        {"type": "single", "prompt": "Sur le trajet, que peut voir un intermédiaire dans une connexion HTTPS ordinaire ?",
+         "options": ["Le contenu de la page", "Les cookies", "Les adresses IP, les ports et la taille des paquets", "Le mot de passe saisi"], "answer": 2,
+         "explanation": "TLS chiffre le contenu HTTP (URL complète, cookies, données). Les adresses, ports, tailles, horaires et souvent le nom du site (SNI) restent visibles."},
+        {"type": "single", "prompt": "Dans la variante « Port bloqué », pourquoi le navigateur attend-il longtemps avant d'afficher une erreur ?",
+         "options": ["Parce que le serveur répond lentement", "Parce que le pare-feu détruit le SYN sans répondre, et l'ordinateur retransmet plusieurs fois", "Parce que le DNS ne répond pas", "Parce que la box est éteinte"], "answer": 1,
+         "explanation": "Avec une règle DROP, aucune réponse n'arrive : TCP retransmet le SYN avec des délais croissants avant d'abandonner. Un RST donnerait au contraire un échec immédiat (« connexion refusée »)."}
+    ]},
+    {"slug": "quiz-nat", "title": "Quiz — NAT et PAT", "module": "lecons", "questions": [
+        {"type": "single", "prompt": "Pourquoi une box utilise-t-elle le NAT ?", "options": ["Pour chiffrer le trafic", "Pour partager une adresse IPv4 publique entre plusieurs appareils ayant des adresses privées", "Pour accélérer le Wi-Fi", "Pour remplacer le DNS"], "answer": 1,
+         "explanation": "Les adresses privées (RFC 1918) ne sont pas routées sur Internet ; le NAT permet à tout le foyer de sortir avec l'adresse publique de la box."},
+        {"type": "single", "prompt": "Deux appareils utilisent le même port source 51514 vers le même serveur. Comment la box distingue-t-elle les réponses ?", "options": ["Elle ne peut pas : une des connexions échoue", "Elle attribue un port public différent à chaque connexion et le note dans sa table", "Elle utilise l'adresse MAC du serveur", "Elle demande au serveur"], "answer": 1,
+         "explanation": "C'est le principe du PAT : chaque conversation reçoit un couple (adresse publique, port) unique, enregistré dans la table de traduction."},
+        {"type": "single", "prompt": "Un paquet arrive de l'extérieur vers 203.0.113.25:8080 sans connexion préalable ni règle de redirection. Que fait la box ?", "options": ["Elle l'envoie à tous les appareils", "Elle l'envoie au dernier appareil actif", "Elle le rejette : aucune entrée de la table ne correspond", "Elle le transmet au résolveur DNS"], "answer": 2,
+         "explanation": "Sans entrée dans la table (ni redirection de port), la box ne sait pas à quel appareil le remettre ; il est rejeté."},
+        {"type": "match", "prompt": "Associe chaque notion à sa description.", "pairs": [
+            {"left": "Adresse privée", "right": "Utilisable seulement dans un réseau interne (ex. 192.168.1.10)"},
+            {"left": "Adresse publique", "right": "Unique et routable sur Internet"},
+            {"left": "Redirection de port", "right": "Règle qui envoie un port public vers un appareil interne"},
+            {"left": "CGNAT", "right": "NAT réalisé par l'opérateur pour plusieurs abonnés"}],
+         "explanation": "Le NAT de la box relie le monde des adresses privées à celui des adresses publiques ; la redirection de port crée une entrée permanente pour les connexions entrantes ; le CGNAT ajoute un second niveau de traduction chez l'opérateur."}
+    ]},
+    {"slug": "quiz-dns", "title": "Quiz — DNS", "module": "lecons", "questions": [
+        {"type": "single", "prompt": "Quel est le rôle principal du DNS ?", "options": ["Attribuer des adresses IP aux appareils", "Traduire des noms de domaine en informations comme des adresses IP", "Chiffrer les pages Web", "Choisir le chemin des paquets"], "answer": 1,
+         "explanation": "Le DNS est l'annuaire d'Internet. L'attribution d'adresses est le rôle de DHCP, le chiffrement celui de TLS, le choix du chemin celui du routage."},
+        {"type": "order", "prompt": "Résolution complète sans cache : remets dans l'ordre les serveurs interrogés par le résolveur pour www.example.com.", "items": ["Un serveur racine", "Un serveur du domaine .com", "Le serveur faisant autorité pour example.com"],
+         "explanation": "On descend la hiérarchie de droite à gauche : la racine délègue vers .com, qui délègue vers les serveurs d'example.com, qui donnent la réponse finale."},
+        {"type": "single", "prompt": "Que signifie un TTL de 300 dans une réponse DNS ?", "options": ["Le paquet peut traverser 300 routeurs", "La réponse peut être gardée en cache 300 secondes", "Le serveur a mis 300 ms à répondre", "Il reste 300 adresses disponibles"], "answer": 1,
+         "explanation": "En DNS, le TTL est une durée de mise en cache en secondes. À ne pas confondre avec le TTL de l'en-tête IP, qui compte des sauts."},
+        {"type": "single", "prompt": "Quel code de réponse indique que le nom demandé n'existe pas ?", "options": ["NOERROR", "SERVFAIL", "NXDOMAIN", "REFUSED"], "answer": 2,
+         "explanation": "NXDOMAIN (RCODE 3) : le nom n'existe pas. SERVFAIL signale que le résolveur n'a pas pu obtenir de réponse."},
+        {"type": "multiple", "prompt": "Quels transports le DNS peut-il utiliser ?", "options": ["UDP port 53", "TCP port 53", "HTTPS (DoH)", "TLS port 853 (DoT)"], "answer": [0, 1, 2, 3],
+         "explanation": "UDP 53 pour la plupart des requêtes, TCP 53 pour les grandes réponses et transferts de zone, et des variantes chiffrées : DoH et DoT."}
+    ]},
+    {"slug": "quiz-tcp", "title": "Quiz — Poignée de main TCP", "module": "lecons", "questions": [
+        {"type": "order", "prompt": "Remets dans l'ordre les messages de la poignée de main TCP.", "items": ["SYN", "SYN-ACK", "ACK"],
+         "explanation": "Le client demande (SYN), le serveur accepte et synchronise son propre numéro (SYN-ACK), le client confirme (ACK)."},
+        {"type": "single", "prompt": "Le client envoie SYN avec seq = 1000. Quelle valeur d'acquittement le SYN-ACK contient-il ?", "options": ["1000", "1001", "0", "Le numéro de séquence du serveur"], "answer": 1,
+         "explanation": "Le SYN « consomme » un numéro de séquence : le serveur acquitte donc 1000 + 1 = 1001, le prochain numéro attendu."},
+        {"type": "single", "prompt": "Pourquoi faut-il trois messages et pas deux ?", "options": ["Pour des raisons historiques sans importance", "Pour que chaque côté synchronise son numéro de séquence et que l'autre l'acquitte", "Pour échanger les adresses MAC", "Pour négocier le chiffrement"], "answer": 1,
+         "explanation": "Chaque sens a son propre numéro de séquence initial ; chacun doit être annoncé (SYN) et confirmé (ACK). Le SYN du serveur et son ACK sont combinés en un seul message."},
+        {"type": "single", "prompt": "Que reçoit le client s'il tente de se connecter à un port fermé sur un serveur joignable (sans pare-feu) ?", "options": ["Rien du tout", "Un RST", "Un SYN-ACK", "Une réponse DNS"], "answer": 1,
+         "explanation": "Un port fermé répond par un segment RST (connexion refusée). Si rien ne revient, c'est souvent qu'un pare-feu a détruit le paquet."},
+        {"type": "match", "prompt": "Associe chaque drapeau TCP à son rôle.", "pairs": [
+            {"left": "SYN", "right": "Synchroniser les numéros de séquence (ouvrir)"},
+            {"left": "ACK", "right": "Le champ d'acquittement est valide"},
+            {"left": "FIN", "right": "Fin de l'envoi de données de ce côté"},
+            {"left": "RST", "right": "Interrompre brutalement la connexion"}],
+         "explanation": "Ces drapeaux décrivent le rôle de chaque segment ; Wireshark les affiche entre crochets, par exemple [SYN, ACK]."}
+    ]},
+    {"slug": "quiz-arp", "title": "Quiz — ARP", "module": "lecons", "questions": [
+        {"type": "single", "prompt": "À quoi sert ARP ?", "options": ["À trouver l'adresse IP d'un site", "À trouver l'adresse MAC correspondant à une adresse IPv4 du réseau local", "À attribuer des adresses", "À chiffrer les trames"], "answer": 1,
+         "explanation": "ARP fait le lien entre adresse IP (couche 3) et adresse MAC (couche 2) sur le réseau local."},
+        {"type": "single", "prompt": "Pour joindre un serveur sur Internet, l'ordinateur résout l'adresse MAC…", "options": ["du serveur", "de la passerelle (la box)", "du résolveur DNS", "de tous les routeurs du trajet"], "answer": 1,
+         "explanation": "Les adresses MAC ne servent que sur le lien local : l'ordinateur n'a besoin que de celle du prochain saut, sa passerelle."},
+        {"type": "multiple", "prompt": "Quelles affirmations sur ARP sont vraies ?", "options": ["La requête est diffusée à tout le réseau local", "La réponse est envoyée directement au demandeur", "ARP traverse les routeurs", "IPv6 utilise NDP à la place d'ARP"], "answer": [0, 1, 3],
+         "explanation": "ARP reste dans le domaine de diffusion local ; il n'est jamais routé. En IPv6, NDP remplit ce rôle."}
+    ]},
+    {"slug": "quiz-dhcp", "title": "Quiz — DHCP", "module": "lecons", "questions": [
+        {"type": "order", "prompt": "Remets dans l'ordre l'échange DHCP.", "items": ["DISCOVER", "OFFER", "REQUEST", "ACK"],
+         "explanation": "D-O-R-A : le client cherche, le serveur propose, le client accepte, le serveur confirme."},
+        {"type": "single", "prompt": "Pourquoi le DHCPDISCOVER est-il envoyé en diffusion depuis l'adresse 0.0.0.0 ?", "options": ["Par erreur", "Parce que le client n'a pas encore d'adresse et ne connaît pas le serveur", "Pour économiser de la bande passante", "Parce que DHCP utilise TCP"], "answer": 1,
+         "explanation": "Le client n'a ni adresse IP ni connaissance du serveur : il diffuse sa demande à tout le réseau local."},
+        {"type": "multiple", "prompt": "Quelles informations un serveur DHCP fournit-il couramment ?", "options": ["Adresse IP", "Masque de sous-réseau", "Passerelle par défaut", "Serveurs DNS", "Mot de passe Wi-Fi"], "answer": [0, 1, 2, 3],
+         "explanation": "Adresse, masque, passerelle, DNS et durée du bail. Le mot de passe Wi-Fi est nécessaire AVANT de pouvoir parler au serveur DHCP."},
+        {"type": "single", "prompt": "Un ordinateur obtient l'adresse 169.254.12.7. Que peut-on en déduire ?", "options": ["Le serveur DHCP fonctionne parfaitement", "Aucun serveur DHCP n'a répondu : l'adresse a été autoconfigurée", "L'ordinateur a une adresse publique", "Le DNS est en panne"], "answer": 1,
+         "explanation": "La plage 169.254.0.0/16 est utilisée pour l'autoconfiguration lien-local quand DHCP échoue : symptôme classique d'un problème DHCP."}
+    ]},
+    {"slug": "quiz-tls", "title": "Quiz — TLS", "module": "lecons", "questions": [
+        {"type": "single", "prompt": "À quoi sert le certificat présenté par le serveur ?", "options": ["À chiffrer le disque du serveur", "À prouver que la clé publique appartient bien au domaine visité", "À accélérer la connexion", "À choisir le port"], "answer": 1,
+         "explanation": "Le certificat, signé par une autorité de confiance, lie une clé publique au nom de domaine. Le serveur prouve ensuite qu'il possède la clé privée correspondante."},
+        {"type": "single", "prompt": "En TLS 1.3, combien d'allers-retours faut-il avant de pouvoir envoyer des données applicatives (nouvelle connexion) ?", "options": ["Aucun", "Un", "Deux", "Quatre"], "answer": 1,
+         "explanation": "TLS 1.3 réduit la négociation à un aller-retour (1-RTT), contre deux pour TLS 1.2. La reprise de session permet même du 0-RTT."},
+        {"type": "multiple", "prompt": "Dans une capture ordinaire d'une connexion TLS 1.3, que peut-on lire ?", "options": ["Le nom du site dans le SNI (sans ECH)", "Le contenu HTTP", "Les adresses IP et les ports", "Le certificat du serveur en clair"], "answer": [0, 2],
+         "explanation": "En TLS 1.3, même le certificat est chiffré. Restent visibles : adresses, ports, tailles et le SNI du ClientHello (sauf avec ECH)."}
+    ]},
+    {"slug": "quiz-traceroute", "title": "Quiz — Traceroute", "module": "lecons", "questions": [
+        {"type": "single", "prompt": "Comment traceroute découvre-t-il chaque routeur ?", "options": ["En lisant une carte d'Internet", "En envoyant des sondes avec un TTL croissant et en lisant les messages ICMP Time Exceeded", "En demandant au DNS", "Grâce à ARP"], "answer": 1,
+         "explanation": "Chaque routeur décrémente le TTL ; celui qui le fait tomber à 0 détruit la sonde et renvoie un ICMP Time Exceeded, révélant son adresse."},
+        {"type": "single", "prompt": "Une ligne affiche « * * * ». Que peut-on conclure ?", "options": ["Le réseau est coupé à cet endroit", "Ce routeur n'a pas répondu aux sondes, ce qui n'empêche pas forcément le trafic de passer", "Le site est en panne", "Le DNS a échoué"], "answer": 1,
+         "explanation": "Beaucoup de routeurs filtrent ou limitent ICMP. Si les sauts suivants répondent, le trafic passe bien."}
+    ]},
+    {"slug": "quiz-vlan", "title": "Quiz — VLAN", "module": "modeles", "questions": [
+        {"type": "single", "prompt": "Deux PC sont branchés sur le même commutateur, l'un dans le VLAN 10, l'autre dans le VLAN 20. Que faut-il pour qu'ils communiquent ?", "options": ["Rien : ils sont sur le même commutateur", "Une fonction de routage (routeur ou commutateur de niveau 3)", "Un câble croisé", "Un serveur DNS"], "answer": 1,
+         "explanation": "Chaque VLAN est un domaine de couche 2 séparé ; passer de l'un à l'autre exige un routage."},
+        {"type": "single", "prompt": "Combien de bits l'identifiant de VLAN (VID) compte-t-il dans l'étiquette 802.1Q ?", "options": ["8", "12", "16", "24"], "answer": 1,
+         "explanation": "12 bits, soit 4096 valeurs dont 4094 utilisables (0 et 4095 sont réservés). VXLAN utilise 24 bits."},
+        {"type": "match", "prompt": "Associe chaque terme à sa définition.", "pairs": [
+            {"left": "Port d'accès", "right": "Appartient à un seul VLAN, trames sans étiquette"},
+            {"left": "Trunk", "right": "Transporte plusieurs VLAN avec étiquettes 802.1Q"},
+            {"left": "Sous-réseau", "right": "Plage d'adresses IP (couche 3)"},
+            {"left": "VLAN", "right": "Domaine de diffusion de couche 2 isolé"}],
+         "explanation": "On associe souvent un sous-réseau à chaque VLAN, mais le VLAN est une séparation de couche 2 et le sous-réseau un découpage d'adresses de couche 3."}
+    ]},
+    {"slug": "quiz-osi", "title": "Quiz — Modèle OSI", "module": "modeles", "questions": [
+        {"type": "order", "prompt": "Remets les couches OSI dans l'ordre, de la couche 1 à la couche 7.", "items": ["Physique", "Liaison de données", "Réseau", "Transport", "Session", "Présentation", "Application"],
+         "explanation": "Moyen mnémotechnique en anglais : « Please Do Not Throw Sausage Pizza Away » (Physical, Data link, Network, Transport, Session, Presentation, Application)."},
+        {"type": "match", "prompt": "Associe chaque unité de données à sa couche.", "pairs": [
+            {"left": "Bit", "right": "Couche 1 — Physique"},
+            {"left": "Trame", "right": "Couche 2 — Liaison"},
+            {"left": "Paquet", "right": "Couche 3 — Réseau"},
+            {"left": "Segment (TCP)", "right": "Couche 4 — Transport"}],
+         "explanation": "Chaque couche ajoute son en-tête : on parle de segment (ou datagramme UDP) en couche 4, de paquet en couche 3, de trame en couche 2."},
+        {"type": "single", "prompt": "À quelle couche un routeur prend-il ses décisions d'acheminement ?", "options": ["Couche 1", "Couche 2", "Couche 3", "Couche 7"], "answer": 2,
+         "explanation": "Le routeur lit l'adresse IP de destination (couche 3). Le commutateur, lui, travaille avec les adresses MAC (couche 2)."},
+        {"type": "single", "prompt": "Quelle affirmation sur le modèle OSI est la plus juste ?", "options": ["Chaque protocole réel appartient exactement à une couche", "C'est un modèle conceptuel : certains protocoles ne s'y rangent pas parfaitement", "Internet est construit exactement sur les 7 couches OSI", "Les couches 5 et 6 ont chacune un protocole dédié sur Internet"], "answer": 1,
+         "explanation": "Le modèle OSI sert à comprendre les responsabilités. TLS, ARP ou MPLS, par exemple, se placent entre deux couches."},
+        {"type": "single", "prompt": "Ethernet relève de quelles couches OSI ?", "options": ["Uniquement la couche 2", "Les couches 1 et 2", "Les couches 2 et 3", "La couche 4"], "answer": 1,
+         "explanation": "La norme IEEE 802.3 définit le support physique et le format des trames (sous-couche MAC)."}
+    ]},
+    {"slug": "quiz-tcpip", "title": "Quiz — Modèle TCP/IP", "module": "modeles", "questions": [
+        {"type": "match", "prompt": "Place chaque protocole dans sa couche TCP/IP.", "pairs": [
+            {"left": "HTTP", "right": "Application"},
+            {"left": "UDP", "right": "Transport"},
+            {"left": "IPv6", "right": "Internet"},
+            {"left": "Ethernet", "right": "Accès réseau"}],
+         "explanation": "Le modèle TCP/IP regroupe les couches OSI 5-6-7 en « Application » et 1-2 en « Accès réseau »."},
+        {"type": "single", "prompt": "À quelles couches OSI la couche « Application » de TCP/IP correspond-elle ?", "options": ["7 seulement", "5, 6 et 7", "4 et 7", "1 et 2"], "answer": 1,
+         "explanation": "Les fonctions de session et de présentation sont intégrées aux applications (ou à TLS) dans le modèle TCP/IP."},
+        {"type": "single", "prompt": "QUIC est…", "options": ["un protocole de couche Internet", "un protocole de transport qui fonctionne au-dessus d'UDP", "un remplaçant d'Ethernet", "un format de fichier"], "answer": 1,
+         "explanation": "QUIC assure les fonctions de transport (fiabilité, flux, congestion) mais s'appuie sur UDP, ce qui montre que les modèles ne décrivent pas toujours exactement les implémentations."}
+    ]},
+    {"slug": "quiz-reseaux", "title": "Quiz — Types de réseaux", "module": "modeles", "questions": [
+        {"type": "order", "prompt": "Classe ces réseaux du plus petit au plus étendu.", "items": ["PAN", "LAN", "CAN", "MAN", "WAN"],
+         "explanation": "Personnel, local, campus, métropolitain, étendu : la portée géographique augmente."},
+        {"type": "single", "prompt": "Pourquoi le VPN n'est-il pas comparable au LAN ou au WAN ?", "options": ["Parce qu'il est toujours plus rapide", "Parce qu'il décrit une façon de construire un réseau privé logique, pas une portée géographique", "Parce qu'il n'utilise pas IP", "Parce qu'il est réservé aux opérateurs"], "answer": 1,
+         "explanation": "Un VPN est un réseau virtuel construit par tunnels au-dessus d'un autre réseau ; il peut relier deux LAN à travers un WAN."},
+        {"type": "match", "prompt": "Associe chaque réseau à un exemple.", "pairs": [
+            {"left": "PAN", "right": "Téléphone et écouteurs Bluetooth"},
+            {"left": "WLAN", "right": "Le Wi-Fi d'un café"},
+            {"left": "SAN", "right": "Serveurs reliés à une baie de disques"},
+            {"left": "WAN", "right": "Agences d'une banque dans plusieurs villes"}],
+         "explanation": "Les catégories ne sont pas exclusives : un WLAN est un LAN sans fil, un SAN est défini par son usage."}
+    ]},
+    {"slug": "quiz-equipements", "title": "Quiz — Équipements", "module": "modeles", "questions": [
+        {"type": "match", "prompt": "Associe chaque équipement à l'information principale qu'il examine.", "pairs": [
+            {"left": "Commutateur", "right": "Adresse MAC de destination"},
+            {"left": "Routeur", "right": "Adresse IP de destination"},
+            {"left": "Pare-feu à états", "right": "Adresses, ports et état des connexions"},
+            {"left": "Équilibreur de niveau 7", "right": "Contenu de la requête HTTP"}],
+         "explanation": "Chaque équipement travaille principalement à une couche : c'est ce qui détermine ce qu'il « voit » et ce qu'il peut décider."},
+        {"type": "multiple", "prompt": "Quelles fonctions une box domestique réunit-elle généralement ?", "options": ["Routeur", "NAT/PAT", "Serveur DHCP", "Point d'accès Wi-Fi", "Serveur faisant autorité pour un domaine"], "answer": [0, 1, 2, 3],
+         "explanation": "La box combine routeur, NAT, pare-feu, DHCP, commutateur et Wi-Fi. Elle ne fait pas autorité pour des noms de domaine publics."},
+        {"type": "single", "prompt": "Un point d'accès Wi-Fi seul…", "options": ["route les paquets entre réseaux", "fait le pont entre le réseau sans fil et le réseau filaire local", "attribue les adresses publiques", "remplace le DNS"], "answer": 1,
+         "explanation": "Le point d'accès travaille en couches 1 et 2 ; le routage est assuré par un routeur (souvent dans la même box à la maison)."}
+    ]},
+    {"slug": "quiz-wireshark", "title": "Quiz — Lire une capture", "module": "wireshark", "questions": [
+        {"type": "single", "prompt": "Quel filtre d'affichage montre uniquement les segments TCP portant le drapeau SYN ?", "options": ["tcp.port == syn", "tcp.flags.syn == 1", "syn only", "port 443"], "answer": 1,
+         "explanation": "Les filtres d'affichage portent sur les champs décodés : tcp.flags.syn == 1. « port 443 » est une syntaxe de filtre de capture (BPF)."},
+        {"type": "single", "prompt": "Quelle est la différence entre un filtre de capture et un filtre d'affichage ?", "options": ["Aucune", "Le filtre de capture décide de ce qui est enregistré ; le filtre d'affichage masque des paquets déjà capturés", "Le filtre d'affichage supprime les paquets du fichier", "Le filtre de capture ne fonctionne qu'en Wi-Fi"], "answer": 1,
+         "explanation": "Un paquet exclu par un filtre de capture est perdu ; un filtre d'affichage peut être changé à volonté sur le fichier."},
+        {"type": "single", "prompt": "Une ligne indique « TCP Retransmission ». Que signifie-t-elle ?", "options": ["Le serveur a refusé la connexion", "L'émetteur renvoie un segment qu'il pense perdu", "La connexion est chiffrée", "Le DNS a échoué"], "answer": 1,
+         "explanation": "Faute d'acquittement à temps, TCP renvoie les données. Des retransmissions fréquentes peuvent révéler des pertes ou de la congestion."},
+        {"type": "single", "prompt": "Dans une capture HTTPS ordinaire, que montre Wireshark pour la requête de la page ?", "options": ["GET / HTTP/1.1 en clair", "TLS « Application Data » chiffré", "Le contenu HTML", "Les cookies"], "answer": 1,
+         "explanation": "Sans les clés de session, Wireshark ne peut pas déchiffrer : il affiche des enregistrements « Application Data »."}
+    ]}
+]

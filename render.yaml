@@ -1,0 +1,40 @@
+# Render Blueprint : https://render.com/docs/blueprint-spec
+# Service web gratuit construit depuis le Dockerfile. La base de données est chez Neon (gratuite et
+# permanente), voir docs/DEPLOIEMENT-GRATUIT.md. Les valeurs « sync: false » sont demandées à la création.
+services:
+  - type: web
+    name: aboro-labs
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /up
+    autoDeploy: true
+    envVars:
+      - key: APP_NAME
+        value: Abòrò Labs
+      - key: APP_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        sync: false
+      - key: TRUSTED_PROXIES
+        value: "*"
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_ENCRYPT
+        value: "true"
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: LOG_LEVEL
+        value: warning
+      - key: MAIL_MAILER
+        value: log
+      - key: NETLAB_ADMIN_EMAIL
+        sync: false
+      - key: NETLAB_ADMIN_PASSWORD
+        sync: false

@@ -1,0 +1,381 @@
+[
+    {
+        "slug": "ethernet",
+        "acronym": "Ethernet",
+        "name": "Ethernet (IEEE 802.3)",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "La technologie des réseaux locaux filaires : elle transporte les paquets dans des trames adressées par adresses MAC.",
+        "problem": "Plusieurs appareils branchés sur un même réseau local doivent pouvoir s'envoyer des données de façon fiable, en sachant à quelle carte réseau chaque trame est destinée.",
+        "beginner": "Ethernet, c'est la « langue » du câble réseau. Chaque message est placé dans une enveloppe (la trame) qui porte l'adresse physique de l'expéditeur et du destinataire. Le commutateur lit cette adresse et envoie la trame seulement vers le bon câble.",
+        "analogy": "Un service de courrier interne à un immeuble : les enveloppes portent le numéro de bureau (adresse MAC) et le concierge (commutateur) les dépose dans la bonne boîte.",
+        "real_example": "Ton ordinateur branché à la box par un câble RJ45 envoie chaque paquet dans une trame Ethernet adressée à la carte réseau de la box.",
+        "osi_note": "Ethernet définit à la fois la couche physique (câbles, signaux, débits) et la couche liaison (format de trame, adressage MAC).",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-1", "osi-2", "tcpip-1"],
+        "ports": [],
+        "communication": [
+            {"from": "Ordinateur", "to": "Commutateur", "message": "Trame : MAC destination = box, MAC source = ordinateur, EtherType 0x0800 (IPv4)"},
+            {"from": "Commutateur", "to": "Box", "message": "Le commutateur consulte sa table MAC et ne transmet la trame que sur le port de la box", "note": "Si la MAC de destination est inconnue, la trame est diffusée sur tous les ports du VLAN."},
+            {"from": "Box", "to": "Ordinateur", "message": "Trame réponse : MAC destination = ordinateur, MAC source = box"}
+        ],
+        "fields": [
+            {"name": "Préambule + SFD", "size": "8 octets", "description": "Synchronisation de l'horloge du récepteur. Ils ne sont généralement pas visibles dans Wireshark."},
+            {"name": "MAC destination", "size": "6 octets", "description": "Carte réseau destinataire sur ce lien (ou ff:ff:ff:ff:ff:ff pour une diffusion)."},
+            {"name": "MAC source", "size": "6 octets", "description": "Carte réseau émettrice."},
+            {"name": "EtherType", "size": "2 octets", "description": "Protocole transporté : 0x0800 IPv4, 0x86DD IPv6, 0x0806 ARP, 0x8100 étiquette VLAN. Une valeur ≤ 1500 indique au contraire une longueur (format IEEE 802.3 avec LLC)."},
+            {"name": "Données", "size": "46 à 1500 octets", "description": "Le paquet transporté, complété (bourrage) s'il fait moins de 46 octets."},
+            {"name": "FCS", "size": "4 octets", "description": "Code CRC-32 qui permet de détecter les trames corrompues ; une trame invalide est jetée."}
+        ],
+        "packet_example": {
+            "title": "Trame vue dans Wireshark",
+            "lines": [
+                "Ethernet II, Src: 00:00:5e:00:53:0a, Dst: 00:00:5e:00:53:01",
+                "    Destination: 00:00:5e:00:53:01",
+                "    Source: 00:00:5e:00:53:0a",
+                "    Type: IPv4 (0x0800)",
+                "Internet Protocol Version 4, Src: 192.168.1.10, Dst: 198.51.100.20"
+            ],
+            "note": "Adresses de documentation (RFC 7042). Le FCS n'est généralement pas remis au logiciel de capture."
+        },
+        "mistakes": [
+            "Croire que l'adresse MAC de destination est celle du serveur distant : c'est celle du prochain équipement sur le lien (souvent la passerelle).",
+            "Confondre Ethernet (technologie de réseau local) et Internet.",
+            "Penser qu'un commutateur lit les adresses IP : un commutateur de niveau 2 ne regarde que les adresses MAC."
+        ],
+        "limits": [
+            "Portée limitée par le support : environ 100 m pour le cuivre à paires torsadées, bien plus en fibre.",
+            "Les diffusions (broadcast) atteignent tout le domaine de diffusion : un réseau local trop grand devient bruyant, d'où les VLAN.",
+            "La taille maximale standard des données est de 1500 octets (MTU) ; les « jumbo frames » ne sont pas normalisées par l'IEEE."
+        ],
+        "variants": ["Débits de 10 Mbit/s à 400 Gbit/s et plus", "Power over Ethernet (alimentation par le câble)", "Ethernet industriel", "Format IEEE 802.3 avec en-tête LLC (rare aujourd'hui)"],
+        "references": [
+            {"label": "IEEE 802.3 — Ethernet"},
+            {"label": "RFC 894 — Transmission des datagrammes IP sur Ethernet", "url": "https://www.rfc-editor.org/rfc/rfc894"},
+            {"label": "RFC 7042 — Adresses MAC de documentation", "url": "https://www.rfc-editor.org/rfc/rfc7042"}
+        ],
+        "related": [
+            {"slug": "arp", "type": "complement", "note": "ARP trouve l'adresse MAC qui correspond à une adresse IPv4."},
+            {"slug": "vlan-8021q", "type": "complement", "note": "Ajoute une étiquette VLAN à la trame."},
+            {"slug": "wifi", "type": "alternative", "note": "L'équivalent sans fil du réseau local."},
+            {"slug": "ipv4", "type": "used-by", "note": "IPv4 est le contenu le plus courant des trames."}
+        ],
+        "terms": ["trame", "adresse-mac", "mtu", "broadcast", "commutation", "somme-de-controle"],
+        "lesson_slug": "acces-internet"
+    },
+    {
+        "slug": "wifi",
+        "acronym": "Wi-Fi",
+        "name": "Wi-Fi (IEEE 802.11)",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Le réseau local sans fil : les trames voyagent par ondes radio entre les appareils et un point d'accès.",
+        "problem": "Relier des appareils au réseau local sans câble, en partageant un même canal radio entre plusieurs utilisateurs.",
+        "beginner": "Le Wi-Fi remplace le câble par des ondes radio. Ton téléphone parle au point d'accès (souvent intégré à la box), qui fait le lien avec le réseau filaire. Comme tout le monde partage les mêmes ondes, chacun attend son tour pour parler.",
+        "analogy": "Une salle de classe où un seul élève parle à la fois : avant de parler, on écoute si la salle est silencieuse.",
+        "real_example": "Ton smartphone connecté au réseau « MaBox-5G » envoie ses paquets par radio au point d'accès de la box.",
+        "osi_note": "Couches physique et liaison (sous-couche MAC 802.11).",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-1", "osi-2", "tcpip-1"],
+        "ports": [],
+        "communication": [
+            {"from": "Point d'accès", "to": "Tous", "message": "Balise (beacon) annonçant le nom du réseau (SSID) et ses capacités"},
+            {"from": "Téléphone", "to": "Point d'accès", "message": "Authentification puis association"},
+            {"from": "Téléphone", "to": "Point d'accès", "message": "Échange de clés WPA2/WPA3 (poignée de main en 4 temps)", "note": "Avec WPA3-Personnel, une étape SAE précède cet échange."},
+            {"from": "Téléphone", "to": "Point d'accès", "message": "Trames de données chiffrées ; chaque trame unicast est acquittée (ACK) par le récepteur"}
+        ],
+        "fields": [
+            {"name": "Frame Control", "size": "2 octets", "description": "Type de trame (gestion, contrôle, données) et indicateurs (vers/depuis le système de distribution, chiffrement…)."},
+            {"name": "Durée / ID", "size": "2 octets", "description": "Durée de réservation du canal radio."},
+            {"name": "Adresses 1 à 3 (parfois 4)", "size": "6 octets chacune", "description": "Récepteur, émetteur, BSSID ou destination/source finales selon le sens."},
+            {"name": "Contrôle de séquence", "size": "2 octets", "description": "Numéro de séquence et de fragment, pour détecter les doublons."},
+            {"name": "Données", "size": "variable", "description": "Généralement chiffrées (CCMP ou GCMP)."},
+            {"name": "FCS", "size": "4 octets", "description": "Contrôle d'erreur CRC-32."}
+        ],
+        "packet_example": {
+            "title": "Trame de données capturée en mode moniteur",
+            "lines": [
+                "IEEE 802.11 QoS Data, Flags: .p.....T",
+                "    Receiver address: 00:00:5e:00:53:01",
+                "    Transmitter address: 00:00:5e:00:53:17",
+                "    CCMP parameters",
+                "Data (chiffrées)"
+            ],
+            "note": "Sans mode moniteur, une capture faite sur l'ordinateur montre souvent les trames converties en Ethernet."
+        },
+        "mistakes": [
+            "Confondre « Wi-Fi » et « Internet » : le Wi-Fi n'est que le lien local vers la box.",
+            "Penser qu'une barre de signal pleine garantit un bon débit : les interférences et le nombre d'utilisateurs comptent aussi.",
+            "Croire que WPA2/WPA3 chiffre les données jusqu'au site : le chiffrement Wi-Fi s'arrête au point d'accès."
+        ],
+        "limits": [
+            "Le canal radio est partagé : le débit total est réparti entre les appareils.",
+            "Les murs, la distance et les autres réseaux réduisent la qualité.",
+            "Les bandes 5 et 6 GHz offrent plus de débit mais une portée plus faible que 2,4 GHz."
+        ],
+        "variants": ["Wi-Fi 4 (802.11n)", "Wi-Fi 5 (802.11ac)", "Wi-Fi 6 / 6E (802.11ax)", "Wi-Fi 7 (802.11be)", "Réseaux maillés (mesh)"],
+        "references": [
+            {"label": "IEEE 802.11 — Réseaux locaux sans fil"},
+            {"label": "Wi-Fi Alliance — certifications Wi-Fi et WPA", "url": "https://www.wi-fi.org/"}
+        ],
+        "related": [
+            {"slug": "ethernet", "type": "alternative"},
+            {"slug": "wpa2", "type": "secured-by"},
+            {"slug": "wpa3", "type": "secured-by"},
+            {"slug": "ieee-8021x", "type": "complement", "note": "Authentification d'entreprise (WPA-Enterprise)."}
+        ],
+        "terms": ["trame", "adresse-mac", "debit", "bande-passante", "chiffrement"]
+    },
+    {
+        "slug": "arp",
+        "acronym": "ARP",
+        "name": "Address Resolution Protocol",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Trouve l'adresse MAC qui correspond à une adresse IPv4 sur le réseau local.",
+        "problem": "Pour envoyer un paquet IP sur Ethernet, il faut l'adresse MAC du prochain équipement ; or on ne connaît que son adresse IP.",
+        "beginner": "Ton ordinateur crie à tout le réseau local : « Qui a l'adresse 192.168.1.1 ? ». L'appareil concerné répond : « C'est moi, voici mon adresse MAC ». L'ordinateur note la réponse pour ne pas reposer la question à chaque fois.",
+        "analogy": "Dans une salle, appeler « Qui s'appelle Aïcha ? » pour savoir à quelle place elle est assise.",
+        "real_example": "Avant le tout premier paquet vers Internet, l'ordinateur résout l'adresse MAC de la box (sa passerelle).",
+        "osi_note": "Protocole à la frontière des couches 2 et 3 : il est transporté directement dans Ethernet, mais sert IPv4.",
+        "tcpip_note": "Généralement rattaché à la couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "communication": [
+            {"from": "Ordinateur", "to": "Tous (diffusion)", "message": "Requête ARP : qui a 192.168.1.1 ? Répondre à 192.168.1.10"},
+            {"from": "Box", "to": "Ordinateur", "message": "Réponse ARP : 192.168.1.1 est à 00:00:5e:00:53:01", "note": "La réponse est envoyée directement (unicast)."}
+        ],
+        "fields": [
+            {"name": "Type de matériel", "size": "2 octets", "description": "1 pour Ethernet."},
+            {"name": "Type de protocole", "size": "2 octets", "description": "0x0800 pour IPv4."},
+            {"name": "Longueurs", "size": "1 + 1 octets", "description": "Taille des adresses matérielles (6) et protocolaires (4)."},
+            {"name": "Opération", "size": "2 octets", "description": "1 = requête, 2 = réponse."},
+            {"name": "Adresses de l'émetteur", "size": "6 + 4 octets", "description": "MAC et IP de celui qui envoie le message."},
+            {"name": "Adresses de la cible", "size": "6 + 4 octets", "description": "MAC (inconnue dans une requête : 00:00:00:00:00:00) et IP recherchée."}
+        ],
+        "packet_example": {
+            "title": "Requête et réponse dans Wireshark",
+            "lines": [
+                "1  0.000000  00:00:5e:00:53:0a  Broadcast          ARP  42  Who has 192.168.1.1? Tell 192.168.1.10",
+                "2  0.000812  00:00:5e:00:53:01  00:00:5e:00:53:0a  ARP  42  192.168.1.1 is at 00:00:5e:00:53:01"
+            ]
+        },
+        "mistakes": [
+            "Croire qu'ARP fonctionne à travers Internet : il reste confiné au réseau local (domaine de diffusion).",
+            "Chercher ARP en IPv6 : IPv6 utilise NDP.",
+            "Penser que l'ordinateur fait une requête ARP pour l'adresse du serveur distant : il résout l'adresse de la passerelle."
+        ],
+        "limits": [
+            "Aucune authentification : un appareil malveillant peut envoyer de fausses réponses (usurpation ARP, « ARP spoofing »).",
+            "Les entrées du cache expirent et doivent être rafraîchies.",
+            "Limité à IPv4."
+        ],
+        "variants": ["ARP gratuit (annonce de sa propre adresse)", "Proxy ARP", "RARP (obsolète)"],
+        "references": [{"label": "RFC 826 — An Ethernet Address Resolution Protocol", "url": "https://www.rfc-editor.org/rfc/rfc826"}],
+        "related": [
+            {"slug": "ethernet", "type": "uses"},
+            {"slug": "ipv4", "type": "complement"},
+            {"slug": "ndp", "type": "alternative", "note": "Équivalent en IPv6."}
+        ],
+        "terms": ["arp", "table-arp", "adresse-mac", "broadcast", "passerelle"],
+        "scenario_key": "arp",
+        "lesson_slug": "arp"
+    },
+    {
+        "slug": "vlan-8021q",
+        "acronym": "802.1Q",
+        "name": "VLAN et étiquetage IEEE 802.1Q",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Découpe un réseau commuté en plusieurs réseaux locaux virtuels et étiquette les trames qui circulent entre commutateurs.",
+        "problem": "Séparer des groupes d'appareils (services, invités, téléphonie) sans multiplier les commutateurs, et limiter la portée des diffusions.",
+        "beginner": "Un VLAN, c'est comme poser des cloisons invisibles dans un commutateur : les ports du VLAN 10 ne voient pas ceux du VLAN 20. Quand plusieurs VLAN doivent passer par le même câble, chaque trame reçoit une petite étiquette qui indique son VLAN.",
+        "analogy": "Des badges de couleur dans un immeuble partagé : chaque couleur n'ouvre que les portes de son étage.",
+        "real_example": "Dans une entreprise, le VLAN 10 regroupe les postes de travail et le VLAN 20 les téléphones IP, sur les mêmes commutateurs.",
+        "osi_note": "Couche 2.",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "communication": [
+            {"from": "PC (VLAN 10)", "to": "Commutateur", "message": "Trame sans étiquette sur un port d'accès du VLAN 10"},
+            {"from": "Commutateur", "to": "Routeur / commutateur L3", "message": "Même trame avec étiquette 802.1Q, VID = 10, sur le lien trunk"},
+            {"from": "Routeur", "to": "Commutateur", "message": "Paquet routé vers le VLAN 20, trame étiquetée VID = 20", "note": "Passer d'un VLAN à l'autre exige une fonction de routage."},
+            {"from": "Commutateur", "to": "PC (VLAN 20)", "message": "Étiquette retirée sur le port d'accès du VLAN 20"}
+        ],
+        "fields": [
+            {"name": "TPID", "size": "2 octets", "description": "0x8100 : signale la présence d'une étiquette 802.1Q (placée à l'endroit de l'EtherType)."},
+            {"name": "PCP", "size": "3 bits", "description": "Priorité (classe de service 802.1p, de 0 à 7)."},
+            {"name": "DEI", "size": "1 bit", "description": "Indique qu'une trame peut être éliminée en priorité en cas de congestion."},
+            {"name": "VID", "size": "12 bits", "description": "Identifiant de VLAN : 1 à 4094 utilisables (0 et 4095 sont réservés)."}
+        ],
+        "packet_example": {
+            "title": "Trame étiquetée sur un trunk",
+            "lines": [
+                "Ethernet II, Src: 00:00:5e:00:53:21, Dst: 00:00:5e:00:53:fe",
+                "802.1Q Virtual LAN, PRI: 0, DEI: 0, ID: 10",
+                "    Type: IPv4 (0x0800)",
+                "Internet Protocol Version 4, Src: 10.10.10.21, Dst: 10.20.20.31"
+            ]
+        },
+        "mistakes": [
+            "Croire que deux VLAN peuvent communiquer sans routeur : il faut un routage inter-VLAN.",
+            "Confondre VLAN (séparation de couche 2) et sous-réseau IP (couche 3) : on associe en général un sous-réseau par VLAN, mais ce sont deux notions différentes.",
+            "Penser qu'un VLAN est une protection suffisante : une mauvaise configuration (VLAN natif, trunk négocié automatiquement) peut permettre des attaques par saut de VLAN."
+        ],
+        "limits": [
+            "4094 VLAN au maximum, ce qui peut être insuffisant pour les grands centres de données (d'où VXLAN).",
+            "L'étiquette ajoute 4 octets à la trame.",
+            "Le VLAN natif d'un trunk circule sans étiquette : il doit être configuré de façon cohérente des deux côtés."
+        ],
+        "variants": ["802.1ad (QinQ) : double étiquette, TPID 0x88A8", "VLAN privés", "VLAN voix"],
+        "references": [{"label": "IEEE 802.1Q — Bridges and Bridged Networks"}],
+        "related": [
+            {"slug": "ethernet", "type": "uses"},
+            {"slug": "vxlan", "type": "evolution", "note": "Étend l'idée à grande échelle (24 bits d'identifiant)."},
+            {"slug": "stp-rstp", "type": "complement"},
+            {"slug": "routage-ip", "type": "complement", "note": "Nécessaire pour communiquer entre VLAN."}
+        ],
+        "terms": ["vlan", "trunk", "port-access", "broadcast", "sous-reseau", "qos"],
+        "scenario_key": "vlan",
+        "lesson_slug": "vlan"
+    },
+    {
+        "slug": "stp-rstp",
+        "acronym": "STP / RSTP",
+        "name": "Spanning Tree Protocol / Rapid Spanning Tree Protocol",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Empêche les boucles dans un réseau de commutateurs en désactivant certains liens redondants.",
+        "problem": "Relier des commutateurs par plusieurs chemins améliore la tolérance aux pannes, mais crée des boucles où les diffusions tourneraient indéfiniment (tempête de diffusion).",
+        "beginner": "Les commutateurs se mettent d'accord pour élire un « chef » (le pont racine) et construisent un arbre sans boucle : les liens en trop sont mis en attente et ne se réactivent qu'en cas de panne.",
+        "analogy": "Fermer certaines portes d'un labyrinthe pour qu'il n'existe qu'un seul chemin entre deux pièces, en gardant les clés pour les rouvrir en cas de besoin.",
+        "osi_note": "Couche 2. Les messages (BPDU) sont envoyés à l'adresse multicast 01:80:C2:00:00:00.",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "mistakes": ["Désactiver STP pour « gagner du temps » : une seule boucle peut paralyser tout le réseau local.", "Croire que STP répartit la charge : les liens bloqués ne transportent rien."],
+        "limits": ["Le STP d'origine met 30 à 50 secondes à converger ; RSTP réduit ce délai à quelques secondes au plus.", "Des liens restent inutilisés en fonctionnement normal."],
+        "variants": ["STP (IEEE 802.1D d'origine)", "RSTP (802.1w, intégré à 802.1D-2004)", "MSTP (802.1s, une instance par groupe de VLAN, aujourd'hui dans 802.1Q)", "Variantes propriétaires par VLAN (PVST+)"],
+        "references": [{"label": "IEEE 802.1D et IEEE 802.1Q (RSTP, MSTP)"}],
+        "related": [{"slug": "ethernet", "type": "uses"}, {"slug": "lacp", "type": "complement", "note": "LACP agrège des liens au lieu d'en bloquer."}],
+        "terms": ["commutation", "broadcast"]
+    },
+    {
+        "slug": "lldp",
+        "acronym": "LLDP",
+        "name": "Link Layer Discovery Protocol",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Permet à chaque équipement d'annoncer son identité et ses capacités à ses voisins directs.",
+        "problem": "Savoir quel équipement est branché sur quel port, sans suivre les câbles à la main.",
+        "beginner": "Régulièrement, chaque équipement dit à ses voisins directs : « Je suis le commutateur X, port 12 ». Les administrateurs peuvent ainsi dessiner automatiquement la carte du réseau.",
+        "analogy": "Des voisins qui affichent leur nom sur la porte.",
+        "osi_note": "Couche 2 : EtherType 0x88CC, adresse multicast 01:80:C2:00:00:0E. Les messages ne traversent pas les commutateurs.",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "mistakes": ["Croire que LLDP découvre tout le réseau : il ne voit que les voisins directs.", "Le laisser actif sur des ports exposés au public, ce qui révèle des informations sur l'infrastructure."],
+        "limits": ["Informations déclaratives, sans authentification."],
+        "variants": ["LLDP-MED (téléphonie IP)", "CDP : équivalent propriétaire Cisco"],
+        "references": [{"label": "IEEE 802.1AB — Station and Media Access Control Connectivity Discovery"}],
+        "related": [{"slug": "ethernet", "type": "uses"}, {"slug": "snmp", "type": "complement", "note": "Les informations LLDP sont souvent lues par SNMP."}],
+        "terms": ["adresse-mac", "multicast"]
+    },
+    {
+        "slug": "ppp",
+        "acronym": "PPP",
+        "name": "Point-to-Point Protocol",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Établit une liaison entre deux équipements, avec authentification et négociation des paramètres IP.",
+        "problem": "Sur une liaison point à point (ligne téléphonique, liaison série, accès opérateur), il faut négocier le lien, authentifier le client et lui attribuer une adresse.",
+        "beginner": "PPP ouvre une « ligne » entre deux équipements : ils se mettent d'accord sur les réglages, l'un prouve son identité (identifiant et mot de passe de l'abonné), puis l'opérateur lui donne une adresse IP.",
+        "analogy": "Un appel téléphonique où l'on se présente avant de commencer à parler.",
+        "osi_note": "Couche 2.",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "mistakes": ["Confondre PPP et PPPoE : PPPoE transporte des sessions PPP sur Ethernet."],
+        "limits": ["PAP transmet le mot de passe en clair ; CHAP est préférable."],
+        "variants": ["LCP (contrôle du lien)", "IPCP / IPV6CP (configuration IP)", "Authentification PAP ou CHAP"],
+        "references": [
+            {"label": "RFC 1661 — The Point-to-Point Protocol", "url": "https://www.rfc-editor.org/rfc/rfc1661"},
+            {"label": "RFC 1994 — CHAP", "url": "https://www.rfc-editor.org/rfc/rfc1994"}
+        ],
+        "related": [{"slug": "pppoe", "type": "used-by"}, {"slug": "l2tp", "type": "used-by", "note": "L2TP transporte des sessions PPP."}],
+        "terms": ["fai"]
+    },
+    {
+        "slug": "pppoe",
+        "acronym": "PPPoE",
+        "name": "PPP over Ethernet",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Transporte des sessions PPP sur un réseau Ethernet, notamment entre la box et l'opérateur.",
+        "problem": "Permettre à un opérateur d'authentifier chaque abonné et de gérer des sessions individuelles sur un réseau d'accès Ethernet (DSL, certaines fibres).",
+        "beginner": "La box commence par chercher le serveur d'accès de l'opérateur, ouvre une session, puis s'authentifie avec les identifiants de l'abonnement. Ensuite, tout son trafic circule dans cette session.",
+        "analogy": "Un tunnel privé ouvert pour chaque client dans un couloir partagé.",
+        "osi_note": "Couche 2 : EtherType 0x8863 (découverte) et 0x8864 (session).",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "mistakes": ["Oublier que l'en-tête PPPoE (8 octets) réduit la MTU à 1492 octets, ce qui peut bloquer certains sites si le MSS n'est pas ajusté."],
+        "limits": ["Surcoût d'en-tête et gestion de sessions côté opérateur."],
+        "variants": ["Phase de découverte : PADI, PADO, PADR, PADS ; fermeture : PADT"],
+        "references": [{"label": "RFC 2516 — PPP over Ethernet", "url": "https://www.rfc-editor.org/rfc/rfc2516"}],
+        "related": [{"slug": "ppp", "type": "uses"}, {"slug": "ethernet", "type": "uses"}],
+        "terms": ["mtu", "mss", "fai"]
+    },
+    {
+        "slug": "lacp",
+        "acronym": "LACP",
+        "name": "Link Aggregation Control Protocol",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Regroupe plusieurs liens physiques en un seul lien logique, plus rapide et tolérant aux pannes.",
+        "problem": "Augmenter la capacité entre deux équipements et survivre à la coupure d'un câble, sans créer de boucle.",
+        "beginner": "Deux commutateurs reliés par quatre câbles se mettent d'accord pour les traiter comme un seul « gros câble ». Si un câble est coupé, les autres continuent.",
+        "analogy": "Ouvrir plusieurs guichets pour une même file d'attente.",
+        "osi_note": "Couche 2 (protocoles « lents » : EtherType 0x8809).",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "mistakes": ["Croire qu'un seul transfert ira quatre fois plus vite : la répartition se fait par flux (hachage), un flux unique utilise un seul lien."],
+        "limits": ["Les liens doivent avoir la même vitesse et relier les deux mêmes équipements (ou une pile / un châssis virtuel)."],
+        "variants": ["Agrégation statique sans LACP", "MLAG (multi-châssis, souvent propriétaire)"],
+        "references": [{"label": "IEEE 802.1AX — Link Aggregation (anciennement 802.3ad)"}],
+        "related": [{"slug": "ethernet", "type": "uses"}, {"slug": "stp-rstp", "type": "complement"}],
+        "terms": ["bande-passante", "debit"]
+    },
+    {
+        "slug": "macsec",
+        "acronym": "MACsec",
+        "name": "IEEE 802.1AE — MAC Security",
+        "category": "liaison",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Chiffre et authentifie les trames Ethernet d'un lien à l'autre.",
+        "problem": "Protéger le trafic sur les câbles d'un réseau local ou entre sites contre l'écoute et la modification.",
+        "beginner": "MACsec chiffre chaque trame sur un câble, entre deux équipements voisins. Chaque équipement déchiffre puis rechiffre pour le lien suivant.",
+        "analogy": "Un convoyeur de fonds qui change à chaque étape mais garde toujours le coffre fermé.",
+        "osi_note": "Couche 2 : EtherType 0x88E5.",
+        "tcpip_note": "Couche d'accès réseau.",
+        "layers": ["osi-2", "tcpip-1"],
+        "ports": [],
+        "mistakes": ["Croire que MACsec chiffre de bout en bout : il protège saut par saut (lien par lien)."],
+        "limits": ["Nécessite la prise en charge matérielle par les équipements.", "Ajoute un en-tête (SecTAG) et un code d'intégrité (ICV)."],
+        "variants": ["Gestion des clés par MKA (IEEE 802.1X-2010)"],
+        "references": [{"label": "IEEE 802.1AE — MAC Security"}],
+        "related": [{"slug": "ethernet", "type": "secures"}, {"slug": "ieee-8021x", "type": "complement"}, {"slug": "ipsec", "type": "alternative", "note": "IPsec protège au niveau IP."}],
+        "terms": ["chiffrement", "trame"]
+    }
+]

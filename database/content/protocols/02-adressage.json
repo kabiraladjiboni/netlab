@@ -1,0 +1,577 @@
+[
+    {
+        "slug": "ipv4",
+        "acronym": "IPv4",
+        "name": "Internet Protocol version 4",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Le protocole qui donne une adresse à chaque appareil et achemine les paquets de réseau en réseau à travers Internet.",
+        "problem": "Relier des réseaux de technologies différentes en un seul réseau mondial, avec un adressage commun et un acheminement de proche en proche.",
+        "beginner": "IP est l'étiquette d'adresse collée sur chaque paquet : « de 192.168.1.10, pour 198.51.100.20 ». Chaque routeur lit l'adresse de destination et fait avancer le paquet d'une étape. IP ne garantit pas l'arrivée : c'est un service « au mieux ».",
+        "analogy": "La poste : l'adresse sur l'enveloppe suffit pour l'acheminer de centre de tri en centre de tri, mais une lettre simple peut se perdre.",
+        "real_example": "Chaque paquet de ta navigation Web porte un en-tête IPv4 avec ton adresse (ou celle de ta box) et celle du serveur.",
+        "osi_note": "Couche 3 (réseau).",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "communication": [
+            {"from": "Ordinateur", "to": "Box (passerelle)", "message": "Paquet IPv4 : source 192.168.1.10, destination 198.51.100.20, TTL 64"},
+            {"from": "Box", "to": "Routeur du FAI", "message": "Même paquet après NAT : source 203.0.113.25, TTL 63", "note": "Chaque routeur décrémente le TTL et recalcule la somme de contrôle."},
+            {"from": "Routeurs d'Internet", "to": "Serveur", "message": "Le paquet est routé selon l'adresse de destination jusqu'au serveur"}
+        ],
+        "fields": [
+            {"name": "Version", "size": "4 bits", "description": "Toujours 4."},
+            {"name": "IHL", "size": "4 bits", "description": "Longueur de l'en-tête en mots de 32 bits (5 = 20 octets sans option)."},
+            {"name": "DSCP / ECN", "size": "6 + 2 bits", "description": "Classe de service (QoS) et notification explicite de congestion."},
+            {"name": "Longueur totale", "size": "16 bits", "description": "Taille du paquet complet, en-tête compris (maximum 65 535 octets)."},
+            {"name": "Identification, drapeaux, décalage", "size": "16 + 3 + 13 bits", "description": "Gestion de la fragmentation ; le drapeau DF interdit de fragmenter."},
+            {"name": "TTL", "size": "8 bits", "description": "Décrémenté par chaque routeur ; à 0 le paquet est détruit."},
+            {"name": "Protocole", "size": "8 bits", "description": "Contenu transporté : 1 ICMP, 6 TCP, 17 UDP, 50 ESP…"},
+            {"name": "Somme de contrôle d'en-tête", "size": "16 bits", "description": "Ne couvre que l'en-tête ; recalculée à chaque saut."},
+            {"name": "Adresses source et destination", "size": "32 bits chacune", "description": "Expéditeur et destinataire du paquet."},
+            {"name": "Options", "size": "0 à 40 octets", "description": "Rarement utilisées."}
+        ],
+        "packet_example": {
+            "title": "En-tête IPv4 dans Wireshark",
+            "lines": [
+                "Internet Protocol Version 4, Src: 192.168.1.10, Dst: 198.51.100.20",
+                "    0100 .... = Version: 4",
+                "    .... 0101 = Header Length: 20 bytes (5)",
+                "    Total Length: 60",
+                "    Flags: 0x2, Don't fragment",
+                "    Time to Live: 64",
+                "    Protocol: TCP (6)",
+                "    Source Address: 192.168.1.10",
+                "    Destination Address: 198.51.100.20"
+            ]
+        },
+        "mistakes": [
+            "Croire qu'IP garantit la livraison : c'est TCP (ou l'application) qui gère la fiabilité.",
+            "Penser que l'adresse IP source reste toujours identique : le NAT la modifie.",
+            "Confondre adresse IP (logique, de bout en bout) et adresse MAC (physique, locale à un lien)."
+        ],
+        "limits": [
+            "Environ 4,3 milliards d'adresses seulement : les réserves des registres sont épuisées, d'où le NAT et IPv6.",
+            "La fragmentation par les routeurs est coûteuse et souvent mal supportée.",
+            "Aucune confidentialité native (voir IPsec, TLS)."
+        ],
+        "variants": ["Adresses privées (RFC 1918)", "Adresses de bouclage 127.0.0.0/8", "Adresses lien-local 169.254.0.0/16", "Espace partagé CGNAT 100.64.0.0/10"],
+        "references": [
+            {"label": "RFC 791 — Internet Protocol", "url": "https://www.rfc-editor.org/rfc/rfc791"},
+            {"label": "RFC 1918 — Adresses privées", "url": "https://www.rfc-editor.org/rfc/rfc1918"},
+            {"label": "RFC 5737 — Adresses IPv4 de documentation", "url": "https://www.rfc-editor.org/rfc/rfc5737"}
+        ],
+        "related": [
+            {"slug": "ipv6", "type": "evolution", "note": "Successeur conçu pour remplacer IPv4."},
+            {"slug": "icmpv4", "type": "complement", "note": "Signale les erreurs d'acheminement."},
+            {"slug": "arp", "type": "complement"},
+            {"slug": "nat", "type": "complement"},
+            {"slug": "tcp", "type": "used-by"},
+            {"slug": "udp", "type": "used-by"}
+        ],
+        "terms": ["adresse-ip", "paquet", "ttl", "fragmentation", "adresse-privee", "routage", "cidr"],
+        "lesson_slug": "acces-internet"
+    },
+    {
+        "slug": "ipv6",
+        "acronym": "IPv6",
+        "name": "Internet Protocol version 6",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "La nouvelle génération d'IP, avec des adresses de 128 bits : assez pour donner une adresse publique à chaque appareil.",
+        "problem": "Le manque d'adresses IPv4 oblige à partager les adresses (NAT, CGNAT), ce qui complique les communications directes.",
+        "beginner": "IPv6 fait le même travail qu'IPv4 — acheminer les paquets — mais avec des adresses beaucoup plus longues, comme 2001:db8::10. Chaque appareil peut ainsi avoir sa propre adresse publique.",
+        "analogy": "Passer de numéros de téléphone à 8 chiffres à des numéros à 39 chiffres : on ne risque plus d'en manquer.",
+        "real_example": "Beaucoup d'opérateurs mobiles et de box fournissent déjà IPv6 : ton téléphone utilise souvent IPv4 et IPv6 en parallèle.",
+        "osi_note": "Couche 3 (réseau).",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "communication": [
+            {"from": "Routeur", "to": "Réseau local", "message": "Router Advertisement (ICMPv6) : préfixe 2001:db8:1::/64, je suis votre passerelle"},
+            {"from": "Ordinateur", "to": "Réseau local", "message": "Construction d'une adresse (SLAAC) et vérification qu'elle est libre (DAD)"},
+            {"from": "Ordinateur", "to": "Serveur", "message": "Paquet IPv6 : source 2001:db8:1::a, destination 2001:db8:2::20, Hop Limit 64", "note": "Pas de NAT nécessaire : l'adresse est globale."}
+        ],
+        "fields": [
+            {"name": "Version", "size": "4 bits", "description": "Toujours 6."},
+            {"name": "Traffic Class", "size": "8 bits", "description": "Équivalent de DSCP / ECN."},
+            {"name": "Flow Label", "size": "20 bits", "description": "Permet d'identifier un flux."},
+            {"name": "Payload Length", "size": "16 bits", "description": "Longueur des données après l'en-tête de 40 octets."},
+            {"name": "Next Header", "size": "8 bits", "description": "En-tête suivant : extension ou protocole (6 TCP, 17 UDP, 58 ICMPv6)."},
+            {"name": "Hop Limit", "size": "8 bits", "description": "Équivalent du TTL."},
+            {"name": "Adresses source et destination", "size": "128 bits chacune", "description": "Notation hexadécimale par groupes de 16 bits, « :: » abrège une suite de zéros."}
+        ],
+        "packet_example": {
+            "title": "En-tête IPv6 dans Wireshark",
+            "lines": [
+                "Internet Protocol Version 6, Src: 2001:db8:1::a, Dst: 2001:db8:2::20",
+                "    Payload Length: 40",
+                "    Next Header: TCP (6)",
+                "    Hop Limit: 64"
+            ],
+            "note": "2001:db8::/32 est le préfixe réservé à la documentation (RFC 3849)."
+        },
+        "mistakes": [
+            "Bloquer tout ICMPv6 : IPv6 en a besoin pour fonctionner (NDP, découverte de la MTU).",
+            "Croire qu'IPv6 est automatiquement « exposé » sans NAT : un pare-feu à états joue le même rôle de filtrage.",
+            "Penser qu'IPv4 et IPv6 communiquent directement : il faut des mécanismes de transition (double pile, NAT64…)."
+        ],
+        "limits": [
+            "Coexistence longue avec IPv4 (double pile).",
+            "Adresses longues, moins faciles à mémoriser.",
+            "Certains équipements ou logiciels anciens le gèrent mal."
+        ],
+        "variants": ["Adresses globales (2000::/3)", "Lien-local (fe80::/10)", "ULA (fc00::/7)", "Multicast (ff00::/8)", "Mécanismes de transition : double pile, NAT64/DNS64, 464XLAT"],
+        "references": [
+            {"label": "RFC 8200 — Internet Protocol, Version 6", "url": "https://www.rfc-editor.org/rfc/rfc8200"},
+            {"label": "RFC 4291 — Architecture d'adressage IPv6", "url": "https://www.rfc-editor.org/rfc/rfc4291"},
+            {"label": "RFC 3849 — Préfixe de documentation", "url": "https://www.rfc-editor.org/rfc/rfc3849"}
+        ],
+        "related": [
+            {"slug": "ipv4", "type": "predecessor"},
+            {"slug": "icmpv6", "type": "complement"},
+            {"slug": "ndp", "type": "complement"},
+            {"slug": "slaac", "type": "complement"},
+            {"slug": "dhcpv6", "type": "complement"}
+        ],
+        "terms": ["adresse-ip", "ttl", "multicast", "anycast", "cidr"]
+    },
+    {
+        "slug": "nat",
+        "acronym": "NAT / PAT",
+        "name": "Traduction d'adresses et de ports",
+        "category": "adressage",
+        "status": "mechanism",
+        "completeness": "complete",
+        "summary": "Le mécanisme qui permet à tous les appareils d'une maison de partager une seule adresse IPv4 publique.",
+        "problem": "Il n'y a pas assez d'adresses IPv4 publiques pour chaque appareil, et les adresses privées ne sont pas utilisables sur Internet.",
+        "beginner": "Quand un paquet sort de la maison, la box remplace l'adresse de l'appareil par la sienne et note la conversation dans un carnet. Quand la réponse revient, elle consulte son carnet pour savoir à quel appareil la remettre.",
+        "analogy": "Le standard téléphonique d'une entreprise : à l'extérieur, tout le monde voit le même numéro ; le standard sait à quel poste transférer chaque appel.",
+        "real_example": "Ton ordinateur (192.168.1.10) et ton téléphone (192.168.1.23) visitent le même site : le site voit deux connexions venant de 203.0.113.25, sur deux ports différents.",
+        "osi_note": "Mécanisme qui modifie des champs de couche 3 (adresses IP) et, avec PAT, de couche 4 (ports).",
+        "tcpip_note": "Agit sur les couches Internet et transport.",
+        "layers": ["osi-3", "osi-4", "tcpip-2", "tcpip-3"],
+        "ports": [],
+        "communication": [
+            {"from": "Ordinateur", "to": "Box", "message": "192.168.1.10:51514 → 198.51.100.20:443"},
+            {"from": "Box", "to": "Internet", "message": "203.0.113.25:62001 → 198.51.100.20:443", "note": "Entrée ajoutée à la table de traduction."},
+            {"from": "Serveur", "to": "Box", "message": "198.51.100.20:443 → 203.0.113.25:62001"},
+            {"from": "Box", "to": "Ordinateur", "message": "198.51.100.20:443 → 192.168.1.10:51514", "note": "Traduction inverse grâce à la table."}
+        ],
+        "fields": [
+            {"name": "IP source (sortant)", "size": "—", "description": "Remplacée par l'adresse publique de l'équipement NAT."},
+            {"name": "Port source (sortant)", "size": "—", "description": "Remplacé par un port public libre (PAT) ; certains équipements le conservent s'il est disponible."},
+            {"name": "IP et port de destination (entrant)", "size": "—", "description": "Rétablis vers l'appareil interne grâce à la table."},
+            {"name": "Sommes de contrôle", "size": "—", "description": "Recalculées (IP, et TCP/UDP dont le pseudo-en-tête inclut les adresses)."}
+        ],
+        "packet_example": {
+            "title": "Table de traduction (exemple pédagogique)",
+            "lines": [
+                "Proto  Interne               Public                 Destination",
+                "TCP    192.168.1.10:51514    203.0.113.25:62001     198.51.100.20:443",
+                "TCP    192.168.1.23:51514    203.0.113.25:62002     198.51.100.20:443"
+            ]
+        },
+        "mistakes": [
+            "Croire que le NAT modifie tous les champs du paquet : seuls les adresses, ports et sommes de contrôle concernés changent.",
+            "Considérer le NAT comme un pare-feu : le filtrage est une fonction distincte, même si une box combine souvent les deux.",
+            "Penser qu'un serveur peut joindre spontanément un appareil derrière un NAT : il faut une redirection de port ou une technique de traversée."
+        ],
+        "limits": [
+            "Casse le principe de connexion de bout en bout : difficultés pour la voix sur IP, le pair-à-pair, l'hébergement.",
+            "Certains protocoles transportent des adresses dans leurs données (FTP actif, SIP) et nécessitent des assistants (ALG).",
+            "Derrière un CGNAT opérateur, la redirection de port devient impossible pour l'abonné."
+        ],
+        "variants": ["NAT statique (1 pour 1)", "PAT / NAPT (plusieurs pour 1)", "Redirection de port (DNAT)", "CGNAT (NAT444)", "NAT64 (IPv6 vers IPv4)"],
+        "references": [
+            {"label": "RFC 3022 — Traditional IP Network Address Translator", "url": "https://www.rfc-editor.org/rfc/rfc3022"},
+            {"label": "RFC 4787 — Exigences de comportement NAT pour UDP", "url": "https://www.rfc-editor.org/rfc/rfc4787"},
+            {"label": "RFC 6598 — Espace d'adresses partagé (CGNAT)", "url": "https://www.rfc-editor.org/rfc/rfc6598"}
+        ],
+        "related": [
+            {"slug": "ipv4", "type": "complement"},
+            {"slug": "ipv6", "type": "alternative", "note": "L'abondance d'adresses rend la traduction inutile."},
+            {"slug": "tcp", "type": "complement"},
+            {"slug": "udp", "type": "complement"}
+        ],
+        "terms": ["nat", "pat", "adresse-privee", "adresse-publique", "port-forwarding", "cgnat", "somme-de-controle"],
+        "scenario_key": "nat-pat",
+        "lesson_slug": "nat-pat"
+    },
+    {
+        "slug": "dhcpv4",
+        "acronym": "DHCP",
+        "name": "Dynamic Host Configuration Protocol (IPv4)",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Attribue automatiquement une adresse IP et les réglages réseau à chaque appareil qui se connecte.",
+        "problem": "Configurer à la main l'adresse, le masque, la passerelle et le DNS de chaque appareil serait long et source d'erreurs (conflits d'adresses).",
+        "beginner": "Quand ton téléphone se connecte au Wi-Fi, il ne connaît encore rien. Il demande à tout le réseau : « Quelqu'un peut-il me donner une adresse ? ». La box lui propose une adresse, le téléphone l'accepte, et la box confirme. C'est la séquence D-O-R-A.",
+        "analogy": "L'accueil d'un hôtel qui attribue une chambre à chaque nouvel arrivant pour une durée donnée.",
+        "real_example": "Ta box attribue 192.168.1.10 à ton ordinateur pour 24 heures, avec la passerelle 192.168.1.1.",
+        "osi_note": "Protocole applicatif (couche 7) qui sert à configurer la couche 3.",
+        "tcpip_note": "Couche application, transporté par UDP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "67", "transport": "UDP", "note": "serveur"}, {"number": "68", "transport": "UDP", "note": "client"}],
+        "communication": [
+            {"from": "Client (0.0.0.0)", "to": "Diffusion (255.255.255.255)", "message": "DHCPDISCOVER : je cherche un serveur DHCP"},
+            {"from": "Serveur", "to": "Client", "message": "DHCPOFFER : je te propose 192.168.1.10", "note": "Envoyé en unicast ou en diffusion selon les capacités du client (drapeau BROADCAST)."},
+            {"from": "Client", "to": "Diffusion", "message": "DHCPREQUEST : j'accepte l'offre de ce serveur", "note": "Diffusé pour informer aussi les autres serveurs éventuels."},
+            {"from": "Serveur", "to": "Client", "message": "DHCPACK : c'est confirmé, bail de 24 h"}
+        ],
+        "fields": [
+            {"name": "op", "size": "1 octet", "description": "1 = requête du client, 2 = réponse du serveur."},
+            {"name": "xid", "size": "4 octets", "description": "Identifiant de transaction choisi par le client."},
+            {"name": "ciaddr / yiaddr", "size": "4 + 4 octets", "description": "Adresse actuelle du client / adresse proposée (« your IP »)."},
+            {"name": "giaddr", "size": "4 octets", "description": "Adresse de l'agent relais quand le serveur est sur un autre réseau."},
+            {"name": "chaddr", "size": "16 octets", "description": "Adresse matérielle (MAC) du client."},
+            {"name": "Options", "size": "variable", "description": "53 type de message, 1 masque, 3 passerelle, 6 serveurs DNS, 51 durée du bail, 54 identifiant du serveur…"}
+        ],
+        "packet_example": {
+            "title": "Échange DORA dans Wireshark",
+            "lines": [
+                "1  0.000  0.0.0.0       255.255.255.255  DHCP  342  DHCP Discover - Transaction ID 0x6e1f2a3b",
+                "2  0.004  192.168.1.1   192.168.1.10     DHCP  342  DHCP Offer    - Transaction ID 0x6e1f2a3b",
+                "3  0.005  0.0.0.0       255.255.255.255  DHCP  354  DHCP Request  - Transaction ID 0x6e1f2a3b",
+                "4  0.009  192.168.1.1   192.168.1.10     DHCP  342  DHCP ACK      - Transaction ID 0x6e1f2a3b"
+            ]
+        },
+        "mistakes": [
+            "Croire que DHCP fonctionne d'un réseau à l'autre sans configuration : il faut un agent relais sur le routeur.",
+            "Penser qu'une adresse 169.254.x.x vient du serveur DHCP : c'est une adresse autoconfigurée quand aucun serveur n'a répondu.",
+            "Oublier qu'un second serveur DHCP non autorisé (« rogue ») peut distribuer de mauvaises passerelles."
+        ],
+        "limits": [
+            "Aucune authentification dans le protocole de base : protections comme le « DHCP snooping » sur les commutateurs.",
+            "Spécifique à IPv4 (DHCPv6 et SLAAC pour IPv6)."
+        ],
+        "variants": ["Réservations (adresse fixe par adresse MAC)", "Agent relais et option 82", "Rapid Commit (RFC 4039)"],
+        "references": [
+            {"label": "RFC 2131 — Dynamic Host Configuration Protocol", "url": "https://www.rfc-editor.org/rfc/rfc2131"},
+            {"label": "RFC 2132 — Options DHCP", "url": "https://www.rfc-editor.org/rfc/rfc2132"}
+        ],
+        "related": [
+            {"slug": "udp", "type": "uses"},
+            {"slug": "dhcpv6", "type": "alternative", "note": "Équivalent pour IPv6."},
+            {"slug": "ipv4", "type": "complement"},
+            {"slug": "dns", "type": "complement", "note": "DHCP fournit l'adresse des résolveurs DNS."}
+        ],
+        "terms": ["dhcp", "bail-dhcp", "broadcast", "passerelle", "masque-de-sous-reseau"],
+        "scenario_key": "dhcp",
+        "lesson_slug": "dhcp"
+    },
+    {
+        "slug": "dhcpv6",
+        "acronym": "DHCPv6",
+        "name": "Dynamic Host Configuration Protocol for IPv6",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Distribue adresses IPv6, préfixes délégués et options (comme les DNS) aux appareils.",
+        "problem": "Centraliser la configuration IPv6 quand l'autoconfiguration seule ne suffit pas, et déléguer un préfixe complet à une box.",
+        "beginner": "Comme DHCP en IPv4, mais pour IPv6. Il est très utilisé par les opérateurs pour donner à chaque box un bloc d'adresses à redistribuer dans la maison.",
+        "analogy": "Un service qui attribue non pas une chambre, mais un étage entier à chaque locataire.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, sur UDP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "546", "transport": "UDP", "note": "client"}, {"number": "547", "transport": "UDP", "note": "serveur et relais"}],
+        "mistakes": ["Croire que DHCPv6 fournit la passerelle par défaut : en IPv6, elle est apprise par les annonces de routeur (Router Advertisement)."],
+        "limits": ["Certains systèmes (notamment Android) ne prennent pas en charge l'attribution d'adresses par DHCPv6 et s'appuient sur SLAAC."],
+        "variants": ["Échange Solicit / Advertise / Request / Reply", "Délégation de préfixe (IA_PD)", "Mode sans état (seulement les options)"],
+        "references": [{"label": "RFC 8415 — DHCP for IPv6", "url": "https://www.rfc-editor.org/rfc/rfc8415"}],
+        "related": [{"slug": "ipv6", "type": "complement"}, {"slug": "slaac", "type": "alternative"}, {"slug": "dhcpv4", "type": "alternative"}, {"slug": "udp", "type": "uses"}],
+        "terms": ["dhcp", "adresse-ip"]
+    },
+    {
+        "slug": "slaac",
+        "acronym": "SLAAC",
+        "name": "Stateless Address Autoconfiguration",
+        "category": "adressage",
+        "status": "mechanism",
+        "completeness": "essential",
+        "summary": "Permet à un appareil IPv6 de se fabriquer lui-même une adresse à partir du préfixe annoncé par le routeur.",
+        "problem": "Configurer automatiquement les adresses IPv6 sans serveur central.",
+        "beginner": "Le routeur annonce : « Le réseau ici, c'est 2001:db8:1::/64 ». Chaque appareil complète lui-même la fin de l'adresse, vérifie que personne d'autre ne l'utilise, et c'est prêt.",
+        "analogy": "Une rue annonce son nom ; chaque habitant choisit lui-même son numéro, en vérifiant qu'il est libre.",
+        "osi_note": "Mécanisme de couche 3 s'appuyant sur ICMPv6 (NDP).",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "mistakes": ["Croire que l'adresse contient toujours l'adresse MAC : les systèmes récents utilisent des identifiants aléatoires ou stables mais opaques pour protéger la vie privée."],
+        "limits": ["Le serveur ne connaît pas la liste des adresses attribuées.", "Les serveurs DNS peuvent être annoncés dans les Router Advertisements (RFC 8106) ou via DHCPv6 sans état."],
+        "variants": ["Adresses temporaires (RFC 8981)", "Identifiants stables opaques (RFC 7217)"],
+        "references": [{"label": "RFC 4862 — IPv6 Stateless Address Autoconfiguration", "url": "https://www.rfc-editor.org/rfc/rfc4862"}],
+        "related": [{"slug": "ndp", "type": "uses"}, {"slug": "ipv6", "type": "complement"}, {"slug": "dhcpv6", "type": "alternative"}],
+        "terms": ["adresse-ip", "cidr"]
+    },
+    {
+        "slug": "icmpv4",
+        "acronym": "ICMP",
+        "name": "Internet Control Message Protocol (IPv4)",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Le protocole des messages d'erreur et de diagnostic d'IP : « destination injoignable », « délai dépassé », réponses au ping.",
+        "problem": "IP ne prévient pas l'expéditeur quand un paquet ne peut pas être livré ; il faut un moyen de signaler les problèmes et de tester la connectivité.",
+        "beginner": "Quand un routeur ne peut pas livrer un paquet, il renvoie un petit message d'explication à l'expéditeur. ICMP sert aussi à « pinguer » une machine : « Tu es là ? » — « Oui ! ».",
+        "analogy": "Le courrier « retour à l'envoyeur : adresse inconnue ».",
+        "real_example": "La commande ping envoie des ICMP Echo Request et attend des Echo Reply ; traceroute exploite les messages Time Exceeded.",
+        "osi_note": "Couche 3 : transporté dans IP (protocole 1) mais fait partie intégrante d'IP.",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "communication": [
+            {"from": "Ordinateur", "to": "Serveur", "message": "Echo Request (type 8), identifiant et numéro de séquence"},
+            {"from": "Serveur", "to": "Ordinateur", "message": "Echo Reply (type 0), mêmes identifiant et séquence"},
+            {"from": "Routeur intermédiaire", "to": "Ordinateur", "message": "Time Exceeded (type 11) quand le TTL atteint 0", "note": "C'est le principe de traceroute."}
+        ],
+        "fields": [
+            {"name": "Type", "size": "8 bits", "description": "0 Echo Reply, 3 Destination Unreachable, 5 Redirect, 8 Echo Request, 11 Time Exceeded…"},
+            {"name": "Code", "size": "8 bits", "description": "Précision : pour le type 3, 0 réseau, 1 hôte, 3 port injoignable, 4 fragmentation nécessaire mais DF positionné."},
+            {"name": "Somme de contrôle", "size": "16 bits", "description": "Sur l'ensemble du message ICMP."},
+            {"name": "Données", "size": "variable", "description": "Pour un message d'erreur : début du paquet qui a causé l'erreur (en-tête IP + 8 octets au moins)."}
+        ],
+        "packet_example": {
+            "title": "Ping dans Wireshark",
+            "lines": [
+                "1  0.000000  192.168.1.10   198.51.100.20  ICMP  98  Echo (ping) request  id=0x0001, seq=1/256, ttl=64",
+                "2  0.031207  198.51.100.20  192.168.1.10   ICMP  98  Echo (ping) reply    id=0x0001, seq=1/256, ttl=60"
+            ]
+        },
+        "mistakes": [
+            "Conclure qu'une machine est éteinte parce qu'elle ne répond pas au ping : beaucoup de pare-feu bloquent ICMP.",
+            "Croire qu'ICMP utilise des ports : il n'a pas de numéro de port.",
+            "Bloquer tous les ICMP : on casse la découverte de la MTU du chemin (« Fragmentation Needed »)."
+        ],
+        "limits": ["Les messages ICMP peuvent être limités en débit ou filtrés.", "Une réponse au ping ne prouve pas qu'un service (Web, DNS) fonctionne."],
+        "variants": ["ICMPv6 pour IPv6"],
+        "references": [{"label": "RFC 792 — Internet Control Message Protocol", "url": "https://www.rfc-editor.org/rfc/rfc792"}],
+        "related": [
+            {"slug": "ipv4", "type": "complement"},
+            {"slug": "icmpv6", "type": "alternative"},
+            {"slug": "ping", "type": "used-by"},
+            {"slug": "traceroute", "type": "used-by"}
+        ],
+        "terms": ["ttl", "mtu", "fragmentation", "paquet"],
+        "scenario_key": "traceroute",
+        "lesson_slug": "traceroute"
+    },
+    {
+        "slug": "icmpv6",
+        "acronym": "ICMPv6",
+        "name": "Internet Control Message Protocol for IPv6",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Messages d'erreur et de diagnostic d'IPv6, qui portent aussi la découverte des voisins (NDP).",
+        "problem": "Signaler les erreurs en IPv6 et supporter les fonctions de base du réseau local (résolution d'adresses, découverte des routeurs).",
+        "beginner": "C'est l'ICMP d'IPv6, avec un rôle encore plus important : sans lui, les appareils ne trouveraient ni leurs voisins ni leur routeur.",
+        "analogy": "À la fois le service des retours postaux et l'annuaire du quartier.",
+        "osi_note": "Couche 3 (Next Header 58).",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "mistakes": ["Filtrer ICMPv6 comme on filtrait parfois ICMP en IPv4 : la connectivité IPv6 cesse de fonctionner correctement."],
+        "limits": ["Doit être filtré finement (RFC 4890) plutôt que bloqué."],
+        "variants": ["Erreurs : 1 Destination Unreachable, 2 Packet Too Big, 3 Time Exceeded, 4 Parameter Problem", "Information : 128 Echo Request, 129 Echo Reply", "NDP : types 133 à 137"],
+        "references": [{"label": "RFC 4443 — ICMPv6", "url": "https://www.rfc-editor.org/rfc/rfc4443"}],
+        "related": [{"slug": "ipv6", "type": "complement"}, {"slug": "ndp", "type": "used-by"}, {"slug": "icmpv4", "type": "alternative"}],
+        "terms": ["mtu", "ttl"]
+    },
+    {
+        "slug": "ndp",
+        "acronym": "NDP",
+        "name": "Neighbor Discovery Protocol",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "En IPv6, trouve les adresses MAC des voisins, découvre les routeurs et détecte les adresses en double.",
+        "problem": "IPv6 n'a pas d'ARP ni de diffusion : il faut un autre moyen de découvrir les voisins et les routeurs du réseau local.",
+        "beginner": "NDP remplace ARP en IPv6. Au lieu de crier à tout le monde, l'appareil envoie sa question à un petit groupe d'écoute ciblé. Les routeurs l'utilisent aussi pour annoncer le préfixe du réseau.",
+        "analogy": "Au lieu d'appeler dans tout l'immeuble, on sonne seulement à l'étage où la personne est susceptible d'habiter.",
+        "osi_note": "Couche 3 (messages ICMPv6), au service de la couche 2.",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "communication": [
+            {"from": "Ordinateur", "to": "Multicast « solicited-node »", "message": "Neighbor Solicitation (135) : qui a 2001:db8:1::1 ?"},
+            {"from": "Routeur", "to": "Ordinateur", "message": "Neighbor Advertisement (136) : c'est moi, voici mon adresse MAC"},
+            {"from": "Routeur", "to": "Tous les nœuds (ff02::1)", "message": "Router Advertisement (134) : préfixe, durée de vie, je suis une passerelle", "note": "Les appareils peuvent aussi le solliciter par un Router Solicitation (133)."}
+        ],
+        "fields": [
+            {"name": "Type ICMPv6", "size": "8 bits", "description": "133 RS, 134 RA, 135 NS, 136 NA, 137 Redirect."},
+            {"name": "Adresse cible", "size": "128 bits", "description": "Adresse IPv6 recherchée ou annoncée (NS/NA)."},
+            {"name": "Options", "size": "variable", "description": "Adresse de couche liaison, informations de préfixe, MTU, serveurs DNS (RDNSS)…"},
+            {"name": "Hop Limit IPv6", "size": "8 bits", "description": "Toujours 255 : le récepteur vérifie cette valeur pour s'assurer que le message vient bien du lien local."}
+        ],
+        "packet_example": {
+            "title": "Résolution de voisin dans Wireshark",
+            "lines": [
+                "1  0.000  2001:db8:1::a  ff02::1:ff00:1  ICMPv6  86  Neighbor Solicitation for 2001:db8:1::1 from 00:00:5e:00:53:0a",
+                "2  0.001  2001:db8:1::1  2001:db8:1::a   ICMPv6  86  Neighbor Advertisement 2001:db8:1::1 (rtr, sol, ovr) is at 00:00:5e:00:53:01"
+            ]
+        },
+        "mistakes": ["Chercher des requêtes ARP dans une capture IPv6.", "Croire que les RA sont sûrs : un appareil malveillant peut annoncer un faux routeur (protection : RA Guard)."],
+        "limits": ["Sans protection, vulnérable à l'usurpation comme ARP (SEND, RFC 3971, existe mais est très peu déployé)."],
+        "variants": ["Détection d'adresse dupliquée (DAD)", "Redirection"],
+        "references": [{"label": "RFC 4861 — Neighbor Discovery for IPv6", "url": "https://www.rfc-editor.org/rfc/rfc4861"}],
+        "related": [{"slug": "icmpv6", "type": "uses"}, {"slug": "arp", "type": "alternative"}, {"slug": "slaac", "type": "used-by"}],
+        "terms": ["adresse-mac", "multicast", "passerelle"]
+    },
+    {
+        "slug": "dns",
+        "acronym": "DNS",
+        "name": "Domain Name System",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "L'annuaire d'Internet : il traduit les noms de domaine en adresses IP (et bien plus).",
+        "problem": "Les humains retiennent des noms, les machines utilisent des adresses ; et ces adresses peuvent changer. Il faut un annuaire mondial, toujours à jour et capable de supporter des milliards de requêtes.",
+        "beginner": "Tu tapes un nom de site, ton ordinateur demande à un résolveur : « Quelle est l'adresse de ce site ? ». Le résolveur cherche (ou connaît déjà) la réponse et la renvoie. Les réponses sont gardées en mémoire un certain temps pour aller plus vite la fois suivante.",
+        "analogy": "Le répertoire de ton téléphone : tu choisis un nom, le téléphone compose le numéro.",
+        "real_example": "Avant de charger www.example.com, ton ordinateur obtient son adresse IP (198.51.100.20 dans nos scénarios).",
+        "osi_note": "Couche 7 (application).",
+        "tcpip_note": "Couche application, sur UDP et TCP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "53", "transport": "UDP", "note": "requêtes courantes"}, {"number": "53", "transport": "TCP", "note": "réponses volumineuses, transferts de zone"}],
+        "communication": [
+            {"from": "Ordinateur", "to": "Résolveur", "message": "Requête récursive : A de www.example.com ? (RD = 1)"},
+            {"from": "Résolveur", "to": "Serveur racine", "message": "Requête itérative ; réponse : délégation vers les serveurs de .com", "note": "Uniquement si la réponse n'est pas déjà en cache."},
+            {"from": "Résolveur", "to": "Serveur de .com", "message": "Réponse : délégation vers les serveurs d'example.com"},
+            {"from": "Résolveur", "to": "Serveur faisant autorité", "message": "Réponse finale : A 198.51.100.20, TTL 300 (AA = 1)"},
+            {"from": "Résolveur", "to": "Ordinateur", "message": "Réponse : www.example.com → 198.51.100.20 (RA = 1)"}
+        ],
+        "fields": [
+            {"name": "Identifiant", "size": "16 bits", "description": "Associe la réponse à la question."},
+            {"name": "Drapeaux", "size": "16 bits", "description": "QR (question/réponse), Opcode, AA (réponse faisant autorité), TC (tronqué), RD (récursion demandée), RA (récursion disponible), AD, CD, RCODE (0 NOERROR, 2 SERVFAIL, 3 NXDOMAIN…)."},
+            {"name": "Compteurs", "size": "4 × 16 bits", "description": "Nombre de questions, réponses, enregistrements d'autorité et additionnels."},
+            {"name": "Question", "size": "variable", "description": "Nom, type (A, AAAA, MX…) et classe (IN)."},
+            {"name": "Enregistrements de réponse", "size": "variable", "description": "Nom, type, classe, TTL (durée de cache en secondes), données."}
+        ],
+        "packet_example": {
+            "title": "Requête et réponse dans Wireshark",
+            "lines": [
+                "1  0.000000  192.168.1.10  192.0.2.53    DNS  75  Standard query 0x3f2a A www.example.com",
+                "2  0.018342  192.0.2.53    192.168.1.10  DNS  91  Standard query response 0x3f2a A www.example.com A 198.51.100.20"
+            ],
+            "note": "Adresses de documentation ; l'adresse réelle de www.example.com est différente."
+        },
+        "mistakes": [
+            "Croire que DNS n'utilise que UDP : TCP est utilisé pour les grandes réponses et les transferts de zone.",
+            "Oublier le cache : une modification d'enregistrement n'est visible partout qu'après expiration des TTL.",
+            "Penser que les requêtes DNS classiques sont chiffrées : elles circulent en clair (sauf DoH, DoT, DoQ)."
+        ],
+        "limits": [
+            "Requêtes classiques non chiffrées et non authentifiées : risques d'espionnage et d'empoisonnement de cache (DNSSEC répond à l'authenticité).",
+            "Dépendance critique : une panne DNS rend des services injoignables alors que le réseau fonctionne."
+        ],
+        "variants": ["Enregistrements A, AAAA, CNAME, MX, NS, TXT, SOA, PTR, HTTPS/SVCB", "EDNS(0)", "DNSSEC", "DNS chiffré : DoH, DoT, DoQ"],
+        "references": [
+            {"label": "RFC 1034 — Domain Names: Concepts and Facilities", "url": "https://www.rfc-editor.org/rfc/rfc1034"},
+            {"label": "RFC 1035 — Domain Names: Implementation and Specification", "url": "https://www.rfc-editor.org/rfc/rfc1035"},
+            {"label": "RFC 9156 — Minimisation des requêtes DNS", "url": "https://www.rfc-editor.org/rfc/rfc9156"}
+        ],
+        "related": [
+            {"slug": "udp", "type": "uses"},
+            {"slug": "tcp", "type": "uses"},
+            {"slug": "doh", "type": "secured-by"},
+            {"slug": "dot", "type": "secured-by"},
+            {"slug": "mdns", "type": "related"},
+            {"slug": "https", "type": "used-by", "note": "Le navigateur résout le nom avant de se connecter."}
+        ],
+        "terms": ["dns", "resolveur-dns", "nom-de-domaine", "cache-dns", "ttl", "anycast"],
+        "scenario_key": "dns",
+        "lesson_slug": "dns"
+    },
+    {
+        "slug": "mdns",
+        "acronym": "mDNS",
+        "name": "Multicast DNS",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Résout des noms en « .local » sur le réseau local, sans serveur DNS, en posant la question à tous par multicast.",
+        "problem": "Trouver une imprimante ou un appareil de la maison par son nom sans configurer de serveur DNS.",
+        "beginner": "L'ordinateur demande à tout le réseau local : « Qui s'appelle imprimante.local ? ». L'appareil concerné répond lui-même avec son adresse.",
+        "analogy": "Demander à voix haute dans une pièce qui s'appelle « Kofi ».",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, sur UDP multicast.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "5353", "transport": "UDP", "note": "vers 224.0.0.251 ou ff02::fb"}],
+        "mistakes": ["Croire que mDNS fonctionne à travers un routeur : il reste limité au lien local, sauf passerelle dédiée."],
+        "limits": ["Trafic multicast bruyant sur les grands réseaux.", "Aucune authentification."],
+        "variants": ["DNS-SD : découverte de services (RFC 6763)"],
+        "references": [{"label": "RFC 6762 — Multicast DNS", "url": "https://www.rfc-editor.org/rfc/rfc6762"}],
+        "related": [{"slug": "dns", "type": "related"}, {"slug": "udp", "type": "uses"}],
+        "terms": ["multicast", "nom-de-domaine"]
+    },
+    {
+        "slug": "doh",
+        "acronym": "DoH",
+        "name": "DNS over HTTPS",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Transporte les requêtes DNS dans des échanges HTTPS chiffrés.",
+        "problem": "Les requêtes DNS classiques circulent en clair : n'importe quel intermédiaire peut voir ou modifier les noms consultés.",
+        "beginner": "Au lieu d'envoyer la question DNS en clair, le navigateur la glisse dans une connexion HTTPS chiffrée vers un résolveur compatible.",
+        "analogy": "Mettre sa question dans une enveloppe scellée au lieu d'une carte postale.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, au-dessus de HTTPS.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "443", "transport": "TCP", "note": "HTTPS (ou UDP avec HTTP/3)"}],
+        "mistakes": ["Croire que DoH rend la navigation anonyme : le résolveur choisi voit toujours les requêtes, et l'adresse IP du site reste visible."],
+        "limits": ["Peut contourner le DNS imposé par un réseau d'entreprise, ce qui complique sa gestion."],
+        "variants": ["Format application/dns-message"],
+        "references": [{"label": "RFC 8484 — DNS Queries over HTTPS", "url": "https://www.rfc-editor.org/rfc/rfc8484"}],
+        "related": [{"slug": "dns", "type": "secures"}, {"slug": "https", "type": "uses"}, {"slug": "dot", "type": "alternative"}],
+        "terms": ["dns", "tls", "chiffrement"]
+    },
+    {
+        "slug": "dot",
+        "acronym": "DoT",
+        "name": "DNS over TLS",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Chiffre les requêtes DNS dans une connexion TLS dédiée.",
+        "problem": "Protéger la confidentialité des requêtes DNS entre le client et le résolveur.",
+        "beginner": "Les questions DNS passent dans un tunnel chiffré TLS, sur un port qui lui est réservé.",
+        "analogy": "Une ligne téléphonique chiffrée dédiée à l'annuaire.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, sur TLS et TCP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "853", "transport": "TCP"}],
+        "mistakes": ["Confondre DoT et DNSSEC : DoT chiffre le transport, DNSSEC garantit l'authenticité des données."],
+        "limits": ["Port dédié facilement identifiable et filtrable."],
+        "variants": ["DNS over QUIC (RFC 9250, UDP 853)"],
+        "references": [{"label": "RFC 7858 — DNS over TLS", "url": "https://www.rfc-editor.org/rfc/rfc7858"}],
+        "related": [{"slug": "dns", "type": "secures"}, {"slug": "tls", "type": "uses"}, {"slug": "doh", "type": "alternative"}],
+        "terms": ["dns", "tls"]
+    },
+    {
+        "slug": "igmp",
+        "acronym": "IGMP",
+        "name": "Internet Group Management Protocol",
+        "category": "adressage",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Permet à un appareil IPv4 de s'abonner à un groupe de multidiffusion (multicast).",
+        "problem": "Les routeurs doivent savoir quels réseaux locaux veulent recevoir un flux multicast (télévision sur IP par exemple).",
+        "beginner": "Le décodeur TV dit au routeur : « Je veux recevoir la chaîne diffusée sur ce groupe ». Le routeur ne transmet ce flux que là où quelqu'un l'a demandé.",
+        "analogy": "S'inscrire à une liste de diffusion.",
+        "osi_note": "Couche 3 (protocole IP numéro 2).",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "mistakes": ["Croire que les commutateurs filtrent le multicast sans configuration : il faut l'« IGMP snooping »."],
+        "limits": ["IPv4 seulement : IPv6 utilise MLD."],
+        "variants": ["IGMPv2 (RFC 2236)", "IGMPv3 (RFC 3376, filtrage par source)"],
+        "references": [{"label": "RFC 3376 — IGMP version 3", "url": "https://www.rfc-editor.org/rfc/rfc3376"}],
+        "related": [{"slug": "ipv4", "type": "complement"}],
+        "terms": ["multicast"]
+    }
+]

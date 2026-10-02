@@ -1,0 +1,98 @@
+[
+    {"id": "dns-necessaire", "keywords": ["pourquoi dns", "dns necessaire", "besoin de dns", "a quoi sert le dns", "role du dns", "dns sert"],
+     "answers": {
+        "1": "Les ordinateurs ne savent joindre une machine qu'avec son **adresse IP**, une suite de chiffres. Nous, nous retenons des noms comme www.example.com. Le DNS est l'annuaire qui transforme le nom en adresse IP, un peu comme le répertoire de ton téléphone transforme un nom en numéro.",
+        "2": "IP achemine les paquets grâce aux adresses, pas aux noms. Le DNS associe un nom de domaine à des enregistrements, notamment **A** (IPv4) et **AAAA** (IPv6). Il permet aussi de changer l'adresse d'un serveur sans changer le nom que tout le monde utilise. Les réponses sont mises en cache pendant leur TTL.",
+        "3": "Le DNS (RFC 1034/1035) est une base distribuée et hiérarchique. Le client interroge un résolveur récursif (UDP/TCP 53, ou DoH/DoT), qui répond depuis son cache ou résout de façon itérative : racine → TLD → serveur faisant autorité. Au-delà des adresses, le DNS publie MX (messagerie), TXT (SPF, DKIM…), HTTPS/SVCB, etc."},
+     "sources": [{"label": "Leçon DNS", "href": "/lecons/dns"}, {"label": "Fiche DNS", "href": "/protocoles/dns"}]},
+    {"id": "dns-ne-repond-pas", "keywords": ["serveur dns ne repond", "dns ne repond pas", "dns en panne", "pas de reponse dns", "resolveur ne repond"],
+     "answers": {
+        "1": "Si le serveur DNS ne répond pas, l'ordinateur ne trouve pas l'adresse du site : le navigateur affiche une erreur, alors qu'Internet fonctionne peut-être très bien. On peut le vérifier en joignant un serveur directement par son adresse IP.",
+        "2": "Le client attend, réessaie, puis essaie éventuellement un second résolveur configuré. Sans réponse, la résolution échoue (délai dépassé) et aucune connexion n'est tentée. Diagnostic : `nslookup nom` (ou `dig`), puis le même test vers un autre résolveur.",
+        "3": "À distinguer de SERVFAIL (le résolveur répond mais n'a pas pu résoudre, par exemple échec DNSSEC ou serveurs faisant autorité injoignables) et de NXDOMAIN (le nom n'existe pas). Les réponses négatives peuvent aussi être mises en cache (RFC 2308)."},
+     "sources": [{"label": "Exercice : un nom ne se résout pas", "href": "/diagnostic/dns-ne-resout-pas"}, {"label": "Variante « Erreur DNS »", "href": "/lecons/acces-internet?variante=erreur-dns"}]},
+    {"id": "ip-privee-publique", "keywords": ["privee et publique", "ip privee", "ip publique", "adresse privee", "adresse publique", "difference entre une adresse ip privee"],
+     "answers": {
+        "1": "Une **adresse privée** (comme 192.168.1.10) sert seulement à l'intérieur d'un réseau, par exemple ta maison. Des millions de foyers utilisent les mêmes. Une **adresse publique** est unique sur Internet : c'est celle de ta box, que voient les sites que tu visites.",
+        "2": "Les plages privées sont définies par la RFC 1918 : 10.0.0.0/8, 172.16.0.0/12 et 192.168.0.0/16. Elles ne sont pas routées sur Internet. Pour sortir, la box remplace l'adresse privée par son adresse publique grâce au NAT.",
+        "3": "Les adresses publiques sont attribuées par les registres régionaux (AfriNIC pour l'Afrique) aux opérateurs. Faute d'IPv4 disponibles, certains opérateurs ajoutent un CGNAT (espace partagé 100.64.0.0/10, RFC 6598). En IPv6, les adresses globales rendent la traduction inutile."},
+     "sources": [{"label": "Terme : adresse privée", "href": "/dictionnaire/adresse-privee"}, {"label": "Leçon NAT/PAT", "href": "/lecons/nat-pat"}]},
+    {"id": "ip-change-nat", "keywords": ["pourquoi l'adresse ip change", "ip change", "adresse change", "change avec le nat", "pourquoi le nat", "port source change", "port change"],
+     "answers": {
+        "1": "Ton ordinateur a une adresse privée, inutilisable sur Internet. En sortant de la maison, la box la remplace par **sa propre adresse publique**. Elle note la conversation dans un carnet pour pouvoir te renvoyer la réponse.",
+        "2": "C'est la traduction NAT/PAT : l'IP source (et souvent le port source) est remplacée à la sortie, puis l'IP et le port de destination sont rétablis au retour grâce à la table de traduction. La destination, elle, ne change pas.",
+        "3": "Le PAT attribue un couple (IP publique, port) unique par flux, ce qui permet de distinguer des appareils utilisant le même port source. Les sommes de contrôle IP et TCP/UDP sont recalculées. Le TTL change aussi, mais parce que la box route le paquet."},
+     "sources": [{"label": "Leçon NAT/PAT", "href": "/lecons/nat-pat"}, {"label": "Fiche NAT/PAT", "href": "/protocoles/nat"}]},
+    {"id": "routeur-commutateur", "keywords": ["routeur et un commutateur", "routeur et switch", "difference routeur", "commutateur et routeur", "switch et routeur"],
+     "answers": {
+        "1": "Le **commutateur** relie les appareils d'un même réseau local et distribue les messages au bon appareil. Le **routeur** relie des réseaux différents entre eux, par exemple ta maison et Internet, et choisit la direction à prendre.",
+        "2": "Le commutateur travaille avec les **adresses MAC** (couche 2) et une table MAC apprise automatiquement. Le routeur travaille avec les **adresses IP** (couche 3) et une table de routage ; il décrémente le TTL et ne transmet pas les diffusions.",
+        "3": "Un commutateur de niveau 3 combine les deux fonctions (routage inter-VLAN en matériel). Une box domestique contient à la fois un routeur, un commutateur, un point d'accès Wi-Fi et un NAT."},
+     "sources": [{"label": "Équipements", "href": "/equipements"}, {"label": "Modèle OSI", "href": "/modeles/osi"}]},
+    {"id": "tcp-syn-ack", "keywords": ["syn et ack", "pourquoi syn", "tcp utilise", "poignee de main", "handshake", "trois messages", "indique syn"],
+     "answers": {
+        "1": "Avant d'envoyer des données, TCP vérifie que les deux côtés sont prêts. Le client dit « je veux parler » (**SYN**), le serveur répond « d'accord, moi aussi » (**SYN-ACK**), et le client confirme (**ACK**).",
+        "2": "SYN signifie « synchroniser » : chaque côté annonce son numéro de séquence initial. ACK signifie « j'ai bien reçu » : il confirme le numéro de l'autre. Comme chaque sens doit être annoncé ET confirmé, il faut trois messages (le SYN et l'ACK du serveur sont regroupés).",
+        "3": "Échange : SYN (seq = x), SYN-ACK (seq = y, ack = x + 1), ACK (ack = y + 1). Les ISN aléatoires empêchent la confusion avec d'anciennes connexions et compliquent l'usurpation. Dans Wireshark, une ligne « [SYN] » est le premier segment d'une tentative de connexion."},
+     "sources": [{"label": "Leçon TCP", "href": "/lecons/tcp-handshake"}, {"label": "Fiche TCP", "href": "/protocoles/tcp"}]},
+    {"id": "http3-quic", "keywords": ["http/3", "http3", "quic", "pourquoi http/3 utilise"],
+     "answers": {
+        "1": "HTTP/3 utilise QUIC pour que les pages se chargent plus vite : la connexion et le chiffrement s'ouvrent en une seule étape, et un paquet perdu ne bloque pas tout le reste.",
+        "2": "Avec TCP + TLS, il faut plusieurs allers-retours avant d'envoyer la requête, et une perte bloque tous les flux d'une connexion (blocage en tête de ligne). QUIC, construit sur UDP, intègre TLS 1.3 et transporte des flux indépendants.",
+        "3": "QUIC (RFC 9000/9001) gère lui-même fiabilité, congestion et identifiants de connexion (migration réseau). HTTP/3 (RFC 9114) est la correspondance de HTTP sur QUIC, avec la compression QPACK. Le navigateur découvre HTTP/3 via Alt-Svc ou un enregistrement DNS HTTPS, et revient à TCP si UDP 443 est bloqué."},
+     "sources": [{"label": "Fiche QUIC", "href": "/protocoles/quic"}, {"label": "Variante QUIC", "href": "/lecons/acces-internet?variante=quic"}]},
+    {"id": "vlan-sous-reseau", "keywords": ["vlan et sous-reseau", "vlan et sous reseau", "difference entre vlan", "vlan ou sous-reseau"],
+     "answers": {
+        "1": "Un **VLAN** sépare les appareils au niveau des commutateurs, comme des cloisons invisibles. Un **sous-réseau** est un groupe d'adresses IP. On fait souvent correspondre un sous-réseau à chaque VLAN, mais ce sont deux choses différentes.",
+        "2": "Le VLAN agit en couche 2 : il limite les trames et les diffusions. Le sous-réseau agit en couche 3 : il définit quelles adresses communiquent directement et lesquelles passent par une passerelle. Passer d'un VLAN à l'autre exige un routage.",
+        "3": "On peut techniquement mettre deux sous-réseaux dans un VLAN, ou étendre un sous-réseau sur plusieurs liens. Bonne pratique : un VLAN = un sous-réseau = un domaine de diffusion, et un filtrage (ACL, pare-feu) au point de routage."},
+     "sources": [{"label": "Leçon VLAN", "href": "/lecons/vlan"}, {"label": "Segmentation", "href": "/segmentation"}]},
+    {"id": "retransmissions", "keywords": ["retransmission", "retransmissions", "tcp retransmission", "pourquoi wireshark affiche des retransmissions"],
+     "answers": {
+        "1": "Une retransmission signifie qu'un morceau de données n'a pas été confirmé à temps : TCP le renvoie, au cas où il se serait perdu.",
+        "2": "TCP attend un acquittement (ACK) pour chaque donnée envoyée. Sans ACK dans le délai prévu, il renvoie le segment ; Wireshark le marque « TCP Retransmission ». Quelques retransmissions sont normales ; beaucoup indiquent des pertes, de la congestion ou un filtrage.",
+        "3": "Retransmission sur délai (RTO, qui double à chaque échec) ou rapide après trois ACK dupliqués (« TCP Fast Retransmission »). Une série de SYN retransmis sans réponse suggère un filtrage silencieux. Attention : capturer sur l'émetteur peut montrer une retransmission dont l'original est en réalité arrivé (ACK perdu)."},
+     "sources": [{"label": "Parcours Wireshark", "href": "/wireshark"}, {"label": "Terme : retransmission TCP", "href": "/dictionnaire/retransmission-tcp"}]},
+    {"id": "paquet-trame-segment", "keywords": ["paquet trame segment", "difference entre paquet", "trame et paquet", "segment et paquet", "paquet et trame"],
+     "answers": {
+        "1": "Ce sont les « enveloppes » successives des données. Le **segment** est préparé par TCP, il est placé dans un **paquet** IP qui porte les adresses, lui-même placé dans une **trame** qui voyage sur le câble ou le Wi-Fi.",
+        "2": "Segment (couche 4, TCP ; on parle de datagramme pour UDP), paquet (couche 3, IP), trame (couche 2, Ethernet ou Wi-Fi). La trame est reconstruite à chaque saut ; le paquet voyage de bout en bout (seuls le TTL et, avec le NAT, certaines adresses changent).",
+        "3": "Ces termes désignent les PDU de chaque couche. Dans le langage courant, « paquet » sert souvent pour tout. Wireshark affiche des « frames » : la vue complète de chaque trame capturée, avec toutes ses couches décodées."},
+     "sources": [{"label": "Modèle OSI", "href": "/modeles/osi"}, {"label": "Terme : encapsulation", "href": "/dictionnaire/encapsulation"}]},
+    {"id": "tcp-udp", "keywords": ["tcp et udp", "tcp ou udp", "difference tcp", "udp et tcp"],
+     "answers": {
+        "1": "**TCP** est comme un envoi recommandé : il ouvre une connexion, vérifie que tout arrive et renvoie ce qui manque. **UDP** est comme une carte postale : plus simple et plus rapide, mais sans garantie.",
+        "2": "TCP : connexion, ordre, fiabilité, contrôle de flux et de congestion (Web, messagerie, SSH). UDP : pas de connexion, en-tête de 8 octets (DNS, DHCP, voix, jeux, QUIC). Les deux utilisent des ports.",
+        "3": "TCP (RFC 9293) a un en-tête d'au moins 20 octets et souffre du blocage en tête de ligne ; UDP (RFC 768) laisse la fiabilité à l'application. QUIC reconstruit les garanties de TCP au-dessus d'UDP, avec des flux indépendants."},
+     "sources": [{"label": "Fiche TCP", "href": "/protocoles/tcp"}, {"label": "Fiche UDP", "href": "/protocoles/udp"}]},
+    {"id": "ip-mac", "keywords": ["ip et mac", "adresse mac et", "difference adresse ip", "mac et ip", "adresse physique"],
+     "answers": {
+        "1": "L'**adresse IP** est l'adresse « postale » qui permet de joindre un appareil à travers les réseaux. L'**adresse MAC** est l'identifiant de la carte réseau, utilisé seulement pour livrer les messages sur le réseau local.",
+        "2": "L'adresse IP (couche 3) reste celle de la destination finale tout au long du trajet. L'adresse MAC (couche 2) désigne le prochain équipement sur le lien et change à chaque routeur. ARP (IPv4) ou NDP (IPv6) fait le lien entre les deux.",
+        "3": "Adresse IPv4 : 32 bits, logique, attribuée par configuration ou DHCP. Adresse MAC : 48 bits, gravée ou aléatoire (randomisation sur les appareils récents). Seules les adresses IP sont routables."},
+     "sources": [{"label": "Leçon ARP", "href": "/lecons/arp"}, {"label": "Terme : adresse MAC", "href": "/dictionnaire/adresse-mac"}]},
+    {"id": "port", "keywords": ["c'est quoi un port", "qu'est-ce qu'un port", "a quoi sert un port", "numero de port", "role des ports"],
+     "answers": {
+        "1": "Une machine fait tourner plusieurs programmes à la fois. Le **port** indique à quel programme un message est destiné, comme le numéro d'appartement dans un immeuble dont l'adresse IP serait la rue.",
+        "2": "Les ports (0 à 65535) figurent dans les en-têtes TCP et UDP. Les services écoutent sur des ports connus (443 HTTPS, 53 DNS, 22 SSH) ; les clients utilisent des ports temporaires choisis par le système.",
+        "3": "Une connexion est identifiée par le quadruplet IP/port source et IP/port destination. Le PAT des box modifie le port source pour distinguer les flux. Les numéros sont enregistrés par l'IANA."},
+     "sources": [{"label": "Terme : port", "href": "/dictionnaire/port"}, {"label": "Leçon NAT/PAT", "href": "/lecons/nat-pat"}]},
+    {"id": "tls-role", "keywords": ["role de tls", "a quoi sert tls", "pourquoi tls", "https chiffre", "c'est quoi tls", "certificat"],
+     "answers": {
+        "1": "TLS protège la conversation entre ton navigateur et le site : il la **chiffre** pour que personne ne puisse la lire en chemin, et vérifie avec un **certificat** que tu parles bien au vrai site.",
+        "2": "TLS apporte confidentialité, intégrité et authentification du serveur. Lors de la poignée de main, les deux côtés calculent des clés secrètes (échange Diffie-Hellman) et le serveur prouve son identité avec son certificat et sa clé privée.",
+        "3": "TLS 1.3 (RFC 8446) : 1 aller-retour, clés éphémères (confidentialité persistante), certificat chiffré. Restent visibles : adresses, ports, tailles et SNI (sauf ECH)."},
+     "sources": [{"label": "Leçon TLS", "href": "/lecons/tls"}, {"label": "Fiche TLS", "href": "/protocoles/tls"}]},
+    {"id": "passerelle", "keywords": ["passerelle", "gateway", "passerelle par defaut"],
+     "answers": {
+        "1": "La passerelle est l'appareil à qui ton ordinateur confie tout ce qui doit sortir de ton réseau local. À la maison, c'est la box.",
+        "2": "La passerelle par défaut est l'adresse du routeur utilisé pour toute destination hors du sous-réseau. Elle doit être dans le même sous-réseau que l'appareil, qui résout son adresse MAC par ARP ou NDP.",
+        "3": "Elle correspond à la route par défaut 0.0.0.0/0 (ou ::/0). En IPv6, elle est apprise par les Router Advertisements. VRRP ou HSRP permettent de la rendre redondante."},
+     "sources": [{"label": "Terme : passerelle", "href": "/dictionnaire/passerelle"}, {"label": "Exercice : passerelle inaccessible", "href": "/diagnostic/passerelle-inaccessible"}]},
+    {"id": "osi", "keywords": ["modele osi", "couches osi", "7 couches", "sept couches"],
+     "answers": {
+        "1": "Le modèle OSI découpe le fonctionnement d'un réseau en 7 couches, chacune avec un rôle : du câble (couche 1) jusqu'à l'application (couche 7). Il sert surtout à comprendre et à expliquer.",
+        "2": "Couches : 1 physique, 2 liaison, 3 réseau, 4 transport, 5 session, 6 présentation, 7 application. Chaque couche ajoute son en-tête à l'émission (encapsulation) et le retire à la réception.",
+        "3": "C'est un modèle conceptuel : Internet s'appuie plutôt sur le modèle TCP/IP, et certains protocoles (TLS, ARP, MPLS) ne se rangent pas exactement dans une seule couche."},
+     "sources": [{"label": "Modèle OSI", "href": "/modeles/osi"}, {"label": "Modèle TCP/IP", "href": "/modeles/tcp-ip"}]}
+]

@@ -1,0 +1,373 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
+
+@source '../views';
+
+/*
+ * Abòrò Labs — design system
+ * Bleu nuit #101D35, turquoise réseau #45D6C5, or solaire #F3B75E,
+ * blanc brume #F4F7FB, ardoise #27364B. Les couleurs sont des tokens : ne pas coder
+ * de couleurs en dur dans les composants, utiliser les classes générées
+ * (bg-surface, text-signal, border-line, text-ok, text-warn, text-danger…).
+ */
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
+
+@theme {
+    --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, sans-serif;
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.25rem;
+    --radius-2xl: 1.75rem;
+
+    /* Fonds (valeurs selon le thème, voir :root / .light plus bas) */
+    --color-night-950: var(--n-950);
+    --color-night-900: var(--n-900);
+    --color-night-850: var(--n-850);
+    --color-night-800: var(--n-800);
+    --color-night-700: var(--n-700);
+    --color-night-600: var(--n-600);
+
+    /* Signaux réseau */
+    --color-electric: var(--c-electric);
+    --color-signal: var(--c-signal);
+    --color-ok: var(--c-ok);
+    --color-warn: var(--c-warn);
+    --color-danger: var(--c-danger);
+    --color-violet: var(--c-violet);
+
+    /* Couleurs des couches (cohérentes dans toute l'application) */
+    --color-layer-app: var(--c-layer-app);
+    --color-layer-transport: var(--c-layer-transport);
+    --color-layer-network: var(--c-layer-network);
+    --color-layer-link: var(--c-layer-link);
+    --color-layer-physical: var(--c-layer-physical);
+
+    /* Texte posé sur un fond d'accent (bouton cyan, pastille…) */
+    --color-on-accent: var(--on-accent);
+    /* Or solaire : repères visuels de la marque (points de décision, signature) */
+    --color-gold: var(--c-gold);
+    /* Séries de graphiques (palette validée daltonisme, voir docs) */
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-overlay: var(--overlay);
+
+    /* Tokens shadcn */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-line: var(--line);
+
+    --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+    --animate-dash: dash-flow 1.4s linear infinite;
+    --animate-float: float 6s ease-in-out infinite;
+
+    @keyframes pulse-ring {
+        0% { transform: scale(0.85); opacity: 0.7; }
+        80%, 100% { transform: scale(1.5); opacity: 0; }
+    }
+    @keyframes dash-flow {
+        to { stroke-dashoffset: -24; }
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+}
+
+/* ---------- Thème sombre (par défaut) ---------- */
+:root,
+:root.dark {
+    color-scheme: dark;
+    --n-950: #0a1426;
+    --n-900: #101d35;
+    --n-850: #14233f;
+    --n-800: #182a4a;
+    --n-700: #213656;
+    --n-600: #2c4466;
+
+    --c-electric: #5b8def;
+    --c-signal: #45d6c5;
+    --c-ok: #4fd18b;
+    --c-warn: #f5a524;
+    --c-danger: #f2686a;
+    --c-violet: #a98bf5;
+    --c-layer-app: oklch(0.76 0.14 300);
+    --c-layer-transport: oklch(0.8 0.13 175);
+    --c-layer-network: oklch(0.72 0.16 255);
+    --c-layer-link: oklch(0.86 0.14 95);
+    --c-layer-physical: oklch(0.72 0.03 255);
+    --on-accent: #0a1426;
+    --c-gold: #f3b75e;
+    --chart-1: #20a89b;
+    --chart-2: #8a63de;
+    --chart-3: #c38824;
+    --overlay: rgb(10 20 38 / 0.72);
+
+    --background: var(--n-900);
+    --foreground: #eaf0f7;
+    --card: var(--n-850);
+    --card-foreground: #eaf0f7;
+    --popover: var(--n-800);
+    --popover-foreground: #eaf0f7;
+    --primary: var(--c-electric);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: var(--n-700);
+    --secondary-foreground: #eaf0f7;
+    --muted: var(--n-800);
+    --muted-foreground: #9db0c8;
+    --accent: var(--n-700);
+    --accent-foreground: #f4f7fb;
+    --destructive: var(--c-danger);
+    --border: rgb(60 84 120 / 0.6);
+    --input: rgb(60 84 120 / 0.8);
+    --ring: var(--c-signal);
+    --surface: rgb(24 42 74 / 0.72);
+    --surface-2: rgb(33 54 86 / 0.8);
+    --line: rgb(69 96 136 / 0.45);
+
+    /* Schémas animés */
+    --scene-link: oklch(0.55 0.08 262 / 0.6);
+    --scene-link-dim: oklch(0.6 0.05 262 / 0.35);
+    --scene-label: #eaf0f7;
+    --scene-sublabel: #7fd8cc;
+    --scene-packet-bg: #101d35;
+    --device-stroke: #45d6c5;
+    --device-body: #1b2e50;
+    --device-body-light: #243a60;
+    --device-glow: rgb(69 214 197 / 0.35);
+    --zone-alpha: 7%;
+    --page-glow-1: rgb(69 214 197 / 0.10);
+    --page-glow-2: rgb(243 183 94 / 0.07);
+    --grid-line: oklch(0.5 0.08 262 / 0.08);
+    --row-bad-bg: oklch(0.25 0.02 260 / 0.9);
+    --row-bad-fg: oklch(0.78 0.17 25);
+    --shadow-color: oklch(0 0 0 / 0.35);
+}
+
+/* ---------- Thème clair ---------- */
+:root.light {
+    color-scheme: light;
+    --n-950: #dce4ef;
+    --n-900: #f4f7fb;
+    --n-850: #edf2f8;
+    --n-800: #e5ecf4;
+    --n-700: #d9e2ee;
+    --n-600: #c5d1e0;
+
+    --c-electric: #2f63d6;
+    --c-signal: #0b7d71;
+    --c-ok: #167a45;
+    --c-warn: #b26a00;
+    --c-danger: #c53a3c;
+    --c-violet: #6f41c1;
+    --c-layer-app: oklch(0.52 0.18 300);
+    --c-layer-transport: oklch(0.52 0.11 180);
+    --c-layer-network: oklch(0.5 0.17 258);
+    --c-layer-link: oklch(0.56 0.13 80);
+    --c-layer-physical: oklch(0.5 0.03 255);
+    --on-accent: #ffffff;
+    --c-gold: #a86a0c;
+    --chart-1: #008a7c;
+    --chart-2: #6f41c1;
+    --chart-3: #b17000;
+    --overlay: rgb(39 54 75 / 0.4);
+
+    --background: var(--n-900);
+    --foreground: #1b2a40;
+    --card: oklch(1 0 0);
+    --card-foreground: #1b2a40;
+    --popover: oklch(1 0 0);
+    --popover-foreground: #1b2a40;
+    --primary: var(--c-electric);
+    --primary-foreground: oklch(0.995 0 0);
+    --secondary: var(--n-700);
+    --secondary-foreground: #1b2a40;
+    --muted: var(--n-800);
+    --muted-foreground: #56667d;
+    --accent: var(--n-700);
+    --accent-foreground: #1b2a40;
+    --destructive: var(--c-danger);
+    --border: #d3dce8;
+    --input: #c5d1e0;
+    --ring: var(--c-electric);
+    --surface: rgb(255 255 255 / 0.88);
+    --surface-2: #edf2f8;
+    --line: rgb(39 54 75 / 0.16);
+
+    --scene-link: oklch(0.6 0.06 262 / 0.75);
+    --scene-link-dim: oklch(0.7 0.03 262 / 0.6);
+    --scene-label: #1b2a40;
+    --scene-sublabel: #0b6e64;
+    --scene-packet-bg: #ffffff;
+    --device-stroke: #0b7d71;
+    --device-body: #eef4f9;
+    --device-body-light: #dde8f1;
+    --device-glow: rgb(11 125 113 / 0.22);
+    --zone-alpha: 9%;
+    --page-glow-1: rgb(69 214 197 / 0.14);
+    --page-glow-2: rgb(243 183 94 / 0.14);
+    --grid-line: oklch(0.5 0.05 262 / 0.07);
+    --row-bad-bg: oklch(0.25 0.02 260 / 0.92);
+    --row-bad-fg: oklch(0.85 0.15 25);
+    --shadow-color: oklch(0.3 0.05 265 / 0.12);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+        background-image:
+            radial-gradient(1200px 600px at 10% -10%, var(--page-glow-1), transparent 60%),
+            radial-gradient(900px 500px at 100% 0%, var(--page-glow-2), transparent 60%);
+        background-attachment: fixed;
+        min-height: 100dvh;
+    }
+
+    h1, h2, h3, h4 {
+        @apply font-display tracking-tight;
+        text-wrap: balance;
+    }
+
+    p {
+        text-wrap: pretty;
+    }
+
+    /*
+     * Textes justifiés (choix éditorial de la marque), avec césure française
+     * pour limiter les grands espaces sur mobile. La dernière ligne reste alignée à gauche.
+     * Un conteneur centré ou aligné à droite garde son alignement.
+     */
+    :where(p, li, dd, blockquote, figcaption) {
+        text-align: justify;
+        text-align-last: start;
+        hyphens: auto;
+        -webkit-hyphens: auto;
+    }
+    :where(.text-center, .text-right, .text-end, .text-left, .text-start, nav, button, label, th, td, [role='tab'], [role='menu']) :where(p, li, dd, blockquote, figcaption) {
+        text-align: inherit;
+        text-align-last: auto;
+        hyphens: manual;
+    }
+    /* Titres écrits en paragraphe (cartes, fenêtres) : jamais justifiés. */
+    :where(p.font-display, p.font-semibold, p.font-bold, p.uppercase) {
+        text-align: inherit;
+        text-align-last: auto;
+    }
+    /*
+     * Sur téléphone, les petits textes (légendes, cartes étroites) restent alignés à gauche :
+     * justifiés sur une colonne si étroite, ils créeraient de grands trous entre les mots.
+     */
+    @media (max-width: 639px) {
+        :where(.text-xs, .text-sm, [class*='text-[1']) :where(p, li, dd, figcaption),
+        :where(p, li, dd, figcaption):where(.text-xs, .text-sm, [class*='text-[1']) {
+            text-align: start;
+        }
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-signal);
+        outline-offset: 2px;
+    }
+
+    ::selection {
+        background: color-mix(in oklab, var(--c-electric) 40%, transparent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+    /* Réduction des effets activée manuellement par l'utilisateur */
+    html[data-reduce-motion='true'] *,
+    html[data-reduce-motion='true'] *::before,
+    html[data-reduce-motion='true'] *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+@layer components {
+    .glass {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    .grid-bg {
+        background-image:
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+
+    .text-gradient {
+        background: linear-gradient(100deg, var(--color-signal), var(--color-signal) 30%, var(--color-gold));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .kbd {
+        @apply inline-flex h-5 min-w-5 items-center justify-center rounded border border-line bg-night-800 px-1 font-mono text-[10px] text-muted-foreground;
+    }
+
+    .prose-net {
+        @apply text-[15px] leading-relaxed text-foreground/90;
+    }
+    .prose-net p + p {
+        @apply mt-3;
+    }
+    .prose-net code {
+        @apply rounded bg-night-700/70 px-1.5 py-0.5 font-mono text-[0.85em] text-signal;
+    }
+    .prose-net strong {
+        @apply font-semibold text-foreground;
+    }
+}
+
+@utility scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--n-600) transparent;
+}

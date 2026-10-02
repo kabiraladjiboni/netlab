@@ -1,0 +1,16 @@
+* text=auto eol=lf
+
+*.blade.php diff=html
+*.css diff=css
+*.html diff=html
+*.md diff=markdown
+*.php diff=php
+
+/.github export-ignore
+CHANGELOG.md export-ignore
+.styleci.yml export-ignore
+
+# Scripts exécutés dans le conteneur Linux : toujours en fins de ligne LF (même depuis Windows).
+*.sh text eol=lf
+docker/* text eol=lf
+Dockerfile text eol=lf

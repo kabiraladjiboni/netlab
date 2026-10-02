@@ -1,0 +1,305 @@
+[
+    {
+        "slug": "acces-internet",
+        "title": "Comment accède-t-on à Internet depuis chez soi ?",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "acces-internet",
+        "href": "/lecons/acces-internet",
+        "featured": true,
+        "duration": 15,
+        "quiz": "quiz-acces-internet",
+        "objective": "Suivre une requête Web de ton ordinateur jusqu'à un serveur et retour : DNS, ARP, NAT, routage, TCP, TLS et HTTP.",
+        "concepts": [
+            "dns",
+            "arp",
+            "nat",
+            "routage",
+            "tcp",
+            "tls",
+            "https"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "nat-pat",
+        "title": "Plusieurs appareils, une seule adresse : le NAT/PAT",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "nat-pat",
+        "href": "/lecons/nat-pat",
+        "featured": true,
+        "duration": 8,
+        "quiz": "quiz-nat",
+        "objective": "Comprendre comment la box partage son adresse publique et pourquoi une connexion entrante non sollicitée est bloquée.",
+        "concepts": [
+            "nat",
+            "pat",
+            "port",
+            "adresse privée",
+            "adresse publique",
+            "redirection de port"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "dns",
+        "title": "Comprendre le DNS",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "dns",
+        "href": "/lecons/dns",
+        "featured": true,
+        "duration": 8,
+        "quiz": "quiz-dns",
+        "objective": "Distinguer la requête, la résolution et la réponse DNS, avec ou sans cache.",
+        "concepts": [
+            "dns",
+            "résolveur",
+            "cache",
+            "racine",
+            "TLD",
+            "serveur faisant autorité"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "tcp-handshake",
+        "title": "La poignée de main TCP",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "tcp-handshake",
+        "href": "/lecons/tcp-handshake",
+        "featured": true,
+        "duration": 6,
+        "quiz": "quiz-tcp",
+        "objective": "Comprendre SYN, SYN-ACK et ACK, les numéros de séquence et ce qui se passe quand un port est fermé.",
+        "concepts": [
+            "tcp",
+            "syn",
+            "ack",
+            "numéro de séquence",
+            "drapeaux"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "arp",
+        "title": "ARP : trouver l'adresse MAC d'un voisin",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "arp",
+        "href": "/lecons/arp",
+        "featured": false,
+        "duration": 5,
+        "quiz": "quiz-arp",
+        "objective": "Comprendre pourquoi un appareil a besoin de l'adresse MAC de sa passerelle et comment il l'obtient.",
+        "concepts": [
+            "arp",
+            "adresse mac",
+            "broadcast",
+            "table arp"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "dhcp",
+        "title": "DHCP : obtenir automatiquement une adresse",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "dhcp",
+        "href": "/lecons/dhcp",
+        "featured": false,
+        "duration": 6,
+        "quiz": "quiz-dhcp",
+        "objective": "Suivre l'échange DISCOVER, OFFER, REQUEST, ACK et comprendre le bail.",
+        "concepts": [
+            "dhcp",
+            "bail",
+            "broadcast",
+            "passerelle"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "tls",
+        "title": "TLS 1.3 : chiffrer et prouver son identité",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "tls",
+        "href": "/lecons/tls",
+        "featured": false,
+        "duration": 7,
+        "quiz": "quiz-tls",
+        "objective": "Comprendre la négociation TLS, le rôle du certificat et ce qui reste visible sur le réseau.",
+        "concepts": [
+            "tls",
+            "certificat",
+            "sni",
+            "chiffrement",
+            "clé publique"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "traceroute",
+        "title": "Traceroute : découvrir le chemin des paquets",
+        "track": "Les bases d'Internet",
+        "kind": "scenario",
+        "scenario_key": "traceroute",
+        "href": "/lecons/traceroute",
+        "featured": false,
+        "duration": 6,
+        "quiz": "quiz-traceroute",
+        "objective": "Comprendre le TTL, les messages ICMP Time Exceeded et les limites de traceroute.",
+        "concepts": [
+            "ttl",
+            "icmp",
+            "routage",
+            "traceroute"
+        ],
+        "course": "bases-internet"
+    },
+    {
+        "slug": "osi",
+        "title": "Le modèle OSI en 7 couches",
+        "track": "Modèles et architecture",
+        "kind": "page",
+        "scenario_key": null,
+        "href": "/modeles/osi",
+        "featured": true,
+        "duration": 12,
+        "quiz": "quiz-osi",
+        "objective": "Connaître le rôle de chaque couche et voir l'encapsulation se construire puis se défaire.",
+        "concepts": [
+            "osi",
+            "couche",
+            "encapsulation",
+            "désencapsulation",
+            "pdu"
+        ],
+        "course": "modeles-architecture"
+    },
+    {
+        "slug": "tcp-ip",
+        "title": "Le modèle TCP/IP",
+        "track": "Modèles et architecture",
+        "kind": "page",
+        "scenario_key": null,
+        "href": "/modeles/tcp-ip",
+        "featured": false,
+        "duration": 8,
+        "quiz": "quiz-tcpip",
+        "objective": "Relier les 4 couches TCP/IP aux 7 couches OSI et placer les principaux protocoles.",
+        "concepts": [
+            "tcp/ip",
+            "couche internet",
+            "couche transport",
+            "encapsulation"
+        ],
+        "course": "modeles-architecture"
+    },
+    {
+        "slug": "types-reseaux",
+        "title": "PAN, LAN, WLAN, CAN, MAN, WAN… et les autres",
+        "track": "Modèles et architecture",
+        "kind": "page",
+        "scenario_key": null,
+        "href": "/reseaux",
+        "featured": false,
+        "duration": 10,
+        "quiz": "quiz-reseaux",
+        "objective": "Distinguer les types de réseaux selon leur portée, leur usage et leur nature.",
+        "concepts": [
+            "pan",
+            "lan",
+            "wlan",
+            "can",
+            "man",
+            "wan",
+            "san",
+            "vpn"
+        ],
+        "course": "modeles-architecture"
+    },
+    {
+        "slug": "equipements",
+        "title": "Les équipements et leur rôle",
+        "track": "Modèles et architecture",
+        "kind": "page",
+        "scenario_key": null,
+        "href": "/equipements",
+        "featured": false,
+        "duration": 10,
+        "quiz": "quiz-equipements",
+        "objective": "Savoir ce qu'examine chaque équipement (MAC, IP, ports, contenu) et où il se place.",
+        "concepts": [
+            "routeur",
+            "commutateur",
+            "point d'accès",
+            "pare-feu",
+            "box",
+            "ont"
+        ],
+        "course": "modeles-architecture"
+    },
+    {
+        "slug": "vlan",
+        "title": "VLAN et routage inter-VLAN",
+        "track": "Modèles et architecture",
+        "kind": "scenario",
+        "scenario_key": "vlan",
+        "href": "/lecons/vlan",
+        "featured": false,
+        "duration": 8,
+        "quiz": "quiz-vlan",
+        "objective": "Voir deux appareils branchés sur le même commutateur mais séparés par des VLAN, et comment le routage les relie.",
+        "concepts": [
+            "vlan",
+            "trunk",
+            "802.1q",
+            "routage inter-vlan",
+            "sous-réseau"
+        ],
+        "course": "modeles-architecture"
+    },
+    {
+        "slug": "wireshark",
+        "title": "Comprendre Wireshark sans être perdu dans les lignes",
+        "track": "Analyser le trafic",
+        "kind": "page",
+        "scenario_key": null,
+        "href": "/wireshark",
+        "featured": true,
+        "duration": 15,
+        "quiz": "quiz-wireshark",
+        "objective": "Lire une liste de paquets, interpréter les en-têtes et utiliser les filtres d'affichage.",
+        "concepts": [
+            "wireshark",
+            "capture",
+            "filtre",
+            "pcap",
+            "retransmission"
+        ],
+        "course": "analyser-trafic"
+    },
+    {
+        "slug": "diagnostic",
+        "title": "Diagnostiquer une panne réseau",
+        "track": "Analyser le trafic",
+        "kind": "page",
+        "scenario_key": null,
+        "href": "/diagnostic",
+        "featured": false,
+        "duration": 20,
+        "quiz": null,
+        "objective": "Observer les symptômes, utiliser les indices et identifier une cause plausible.",
+        "concepts": [
+            "diagnostic",
+            "ping",
+            "nslookup",
+            "traceroute"
+        ],
+        "course": "analyser-trafic"
+    }
+]

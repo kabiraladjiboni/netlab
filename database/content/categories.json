@@ -1,0 +1,51 @@
+[
+    {
+        "slug": "liaison",
+        "name": "Liaison et accès au réseau",
+        "description": "Comment les données circulent sur un même lien ou un même réseau local : trames, adresses MAC, Wi-Fi, VLAN, agrégation de liens.",
+        "planned": ["IEEE 802.1ad (QinQ)", "PoE (IEEE 802.3af/at/bt)", "Bluetooth", "GPON / XGS-PON", "DOCSIS (câble)"],
+        "sort": 1
+    },
+    {
+        "slug": "adressage",
+        "name": "Adressage et configuration",
+        "description": "Comment chaque appareil obtient une adresse, la configuration nécessaire pour communiquer, et comment les noms deviennent des adresses.",
+        "planned": ["MLD (multicast IPv6)", "Relais DHCP et option 82", "DNSSEC", "DNS over QUIC (RFC 9250)", "Options RA RDNSS (RFC 8106)"],
+        "sort": 2
+    },
+    {
+        "slug": "transport",
+        "name": "Transport",
+        "description": "Comment les données sont livrées d'un programme à un autre : connexions, ports, fiabilité, ordre et contrôle de congestion.",
+        "planned": ["MPTCP (TCP multi-chemins)", "TCP Fast Open", "LEDBAT"],
+        "sort": 3
+    },
+    {
+        "slug": "applications",
+        "name": "Web et applications",
+        "description": "Les protocoles utilisés directement par les applications : Web, messagerie, transfert de fichiers, voix sur IP, objets connectés, administration.",
+        "planned": ["Kerberos", "gRPC", "XMPP", "RTSP", "WebRTC (ICE, STUN, TURN)", "SRTP"],
+        "sort": 4
+    },
+    {
+        "slug": "routage",
+        "name": "Routage et réseaux opérateurs",
+        "description": "Comment les routeurs apprennent les chemins, se partagent les routes, et comment les opérateurs transportent le trafic à grande échelle.",
+        "planned": ["PIM-SM (routage multicast)", "EIGRP", "Segment Routing (SR-MPLS, SRv6)", "VRF"],
+        "sort": 5
+    },
+    {
+        "slug": "securite",
+        "name": "Sécurité et VPN",
+        "description": "Chiffrement, authentification, contrôle d'accès au réseau et tunnels privés à travers des réseaux publics.",
+        "planned": ["DTLS", "IKEv1 (ancien)", "ECH (Encrypted Client Hello)", "SSTP"],
+        "sort": 6
+    },
+    {
+        "slug": "supervision",
+        "name": "Supervision et diagnostic",
+        "description": "Outils et protocoles pour observer, mesurer, journaliser et dépanner un réseau.",
+        "planned": ["RESTCONF", "gNMI / télémétrie en continu", "TWAMP", "IPMI"],
+        "sort": 7
+    }
+]

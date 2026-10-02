@@ -1,0 +1,20 @@
+[
+    {
+        "slug": "bases-internet",
+        "title": "Les bases d'Internet",
+        "level": "debutant",
+        "description": "Suis une requête Web de bout en bout : adresse IP, DNS, ARP, DHCP, NAT, TCP, TLS et routage. Chaque chapitre est un TP animé que tu peux rejouer paquet par paquet."
+    },
+    {
+        "slug": "modeles-architecture",
+        "title": "Modèles et architecture",
+        "level": "debutant",
+        "description": "Les modèles OSI et TCP/IP, les grandes familles de réseaux, le rôle des équipements et la segmentation avec les VLAN."
+    },
+    {
+        "slug": "analyser-trafic",
+        "title": "Analyser le trafic",
+        "level": "intermediaire",
+        "description": "Lire une capture Wireshark, filtrer, repérer les signaux d'une panne, puis s'entraîner sur des diagnostics réalistes."
+    }
+]

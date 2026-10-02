@@ -1,0 +1,305 @@
+[
+    {
+        "slug": "ping",
+        "acronym": "Ping",
+        "name": "Ping (outil de test de connectivité)",
+        "category": "supervision",
+        "status": "tool",
+        "completeness": "complete",
+        "summary": "Outil qui envoie des messages ICMP Echo pour vérifier qu'une machine répond et mesurer le temps aller-retour.",
+        "problem": "Savoir rapidement si une machine est joignable et avec quelle latence.",
+        "beginner": "Ping, c'est dire « Tu m'entends ? » à une machine et chronométrer sa réponse. S'il n'y a pas de réponse, cela ne prouve pas que la machine est éteinte : elle peut simplement ignorer ces messages.",
+        "analogy": "Le sonar d'un sous-marin : un « ping » et l'on mesure le temps de l'écho.",
+        "real_example": "ping 192.168.1.1 vérifie que la box répond ; ping www.example.com teste aussi la résolution DNS.",
+        "osi_note": "Outil applicatif utilisant ICMP (couche 3).",
+        "tcpip_note": "Utilise la couche Internet (ICMP / ICMPv6).",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [],
+        "communication": [
+            {"from": "Ordinateur", "to": "Cible", "message": "ICMP Echo Request (type 8), seq = 1"},
+            {"from": "Cible", "to": "Ordinateur", "message": "ICMP Echo Reply (type 0), seq = 1 — temps mesuré, TTL reçu"},
+            {"from": "Ordinateur", "to": "Cible", "message": "Répétition, puis statistiques : paquets perdus, temps minimum, moyen, maximum"}
+        ],
+        "fields": [
+            {"name": "Type / code", "size": "8 + 8 bits", "description": "8/0 pour la demande, 0/0 pour la réponse (128 et 129 en ICMPv6)."},
+            {"name": "Identifiant", "size": "16 bits", "description": "Distingue les différents processus ping."},
+            {"name": "Numéro de séquence", "size": "16 bits", "description": "Numéro de chaque essai."},
+            {"name": "Données", "size": "variable", "description": "Contenu de bourrage, souvent horodaté."}
+        ],
+        "packet_example": {
+            "title": "Résultat de la commande",
+            "lines": [
+                "PING 198.51.100.20: 56 data bytes",
+                "64 bytes from 198.51.100.20: icmp_seq=1 ttl=60 time=31.2 ms",
+                "64 bytes from 198.51.100.20: icmp_seq=2 ttl=60 time=30.8 ms",
+                "--- 2 packets transmitted, 2 received, 0% packet loss"
+            ]
+        },
+        "mistakes": [
+            "Conclure « serveur en panne » faute de réponse : ICMP est souvent filtré.",
+            "Conclure « site fonctionnel » parce qu'il répond au ping : le service Web peut être arrêté.",
+            "Croire que ping utilise un port : ICMP n'a pas de ports."
+        ],
+        "limits": ["Ne teste ni TCP, ni UDP, ni un service applicatif.", "Les routeurs traitent parfois ICMP avec une priorité basse : un temps élevé n'est pas forcément représentatif."],
+        "variants": ["ping avec taille et drapeau DF pour tester la MTU", "Outils TCP (tcping, Test-NetConnection) pour tester un port"],
+        "references": [{"label": "RFC 792 — ICMP (messages Echo)", "url": "https://www.rfc-editor.org/rfc/rfc792"}],
+        "related": [{"slug": "icmpv4", "type": "uses"}, {"slug": "icmpv6", "type": "uses"}, {"slug": "traceroute", "type": "complement"}],
+        "terms": ["latence", "perte-de-paquets", "ttl"]
+    },
+    {
+        "slug": "traceroute",
+        "acronym": "Traceroute",
+        "name": "Traceroute (découverte du chemin)",
+        "category": "supervision",
+        "status": "tool",
+        "completeness": "complete",
+        "summary": "Outil qui révèle les routeurs traversés en exploitant le TTL et les messages ICMP « Time Exceeded ».",
+        "problem": "Voir par où passent les paquets et repérer où un problème apparaît sur le chemin.",
+        "beginner": "Traceroute envoie un premier paquet qui ne peut faire qu'un seul saut : le premier routeur le détruit et répond « délai dépassé », révélant son adresse. Puis il recommence avec deux sauts, trois sauts… jusqu'à la destination.",
+        "analogy": "Envoyer des messagers avec 1, puis 2, puis 3 tickets de bus : chacun revient dire où il s'est arrêté.",
+        "real_example": "tracert www.example.com (Windows) ou traceroute www.example.com (Linux, macOS).",
+        "osi_note": "Outil qui joue sur le champ TTL (couche 3) et lit les réponses ICMP.",
+        "tcpip_note": "Couche Internet.",
+        "layers": ["osi-3", "tcpip-2"],
+        "ports": [{"number": "33434 et suivants", "transport": "UDP", "note": "sondes par défaut de traceroute sous Unix ; tracert sous Windows utilise ICMP Echo"}],
+        "communication": [
+            {"from": "Ordinateur", "to": "Destination", "message": "Sonde avec TTL = 1"},
+            {"from": "Routeur 1", "to": "Ordinateur", "message": "ICMP Time Exceeded (type 11) : l'adresse du routeur 1 est révélée"},
+            {"from": "Ordinateur", "to": "Destination", "message": "Sonde avec TTL = 2, puis 3…"},
+            {"from": "Destination", "to": "Ordinateur", "message": "ICMP Port Unreachable (sonde UDP) ou Echo Reply (sonde ICMP) : fin du parcours"}
+        ],
+        "fields": [
+            {"name": "TTL de la sonde", "size": "8 bits", "description": "Augmente de 1 à chaque série (généralement 3 sondes par saut)."},
+            {"name": "Réponse ICMP", "size": "—", "description": "Contient l'en-tête de la sonde d'origine, ce qui permet de l'identifier."},
+            {"name": "Temps", "size": "—", "description": "Temps aller-retour de chaque sonde."}
+        ],
+        "packet_example": {
+            "title": "Sortie de traceroute (illustrative)",
+            "lines": [
+                "traceroute to www.example.com (198.51.100.20), 30 hops max",
+                " 1  192.168.1.1     1.2 ms  1.0 ms  1.1 ms",
+                " 2  203.0.113.1     8.4 ms  8.1 ms  8.6 ms",
+                " 3  * * *",
+                " 4  198.51.100.1   30.9 ms 31.4 ms 30.7 ms",
+                " 5  198.51.100.20  31.2 ms 31.0 ms 31.5 ms"
+            ],
+            "note": "Les étoiles indiquent une absence de réponse : le routeur peut fonctionner normalement mais ne pas répondre aux sondes."
+        },
+        "mistakes": [
+            "Interpréter « * * * » comme une panne : de nombreux routeurs ne répondent pas ou limitent leurs réponses ICMP.",
+            "Croire que le chemin affiché est celui de tous les paquets : le routage peut varier et le retour peut emprunter un autre chemin.",
+            "Comparer directement les temps de deux sauts : la réponse ICMP d'un routeur peut être générée lentement."
+        ],
+        "limits": ["Ne montre que le chemin aller.", "Les tunnels (MPLS) peuvent masquer des routeurs.", "Le partage de charge peut mélanger plusieurs chemins (voir Paris-traceroute)."],
+        "variants": ["tracert (Windows, ICMP)", "traceroute (UDP, ICMP ou TCP selon les options)", "mtr (mesure continue)"],
+        "references": [
+            {"label": "RFC 792 — ICMP (Time Exceeded)", "url": "https://www.rfc-editor.org/rfc/rfc792"},
+            {"label": "RFC 1393 — Traceroute Using an IP Option (historique)", "url": "https://www.rfc-editor.org/rfc/rfc1393"}
+        ],
+        "related": [{"slug": "icmpv4", "type": "uses"}, {"slug": "ping", "type": "complement"}, {"slug": "routage-ip", "type": "related"}],
+        "terms": ["ttl", "routage", "latence"],
+        "scenario_key": "traceroute",
+        "lesson_slug": "traceroute"
+    },
+    {
+        "slug": "snmp",
+        "acronym": "SNMP",
+        "name": "Simple Network Management Protocol",
+        "category": "supervision",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Permet de surveiller et de configurer à distance les équipements réseau : trafic des interfaces, température, état…",
+        "problem": "Un administrateur doit surveiller des centaines d'équipements (débit, erreurs, pannes) sans se connecter à chacun.",
+        "beginner": "Un logiciel de supervision demande régulièrement aux équipements : « Combien d'octets sont passés sur ce port ? ». Les équipements peuvent aussi envoyer une alerte spontanée en cas de problème (trap).",
+        "analogy": "Le tableau de bord d'une voiture qui interroge chaque capteur, avec des voyants qui s'allument d'eux-mêmes.",
+        "real_example": "Un outil de supervision trace la courbe de trafic du lien Internet d'un campus à partir des compteurs SNMP du routeur.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, sur UDP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "161", "transport": "UDP", "note": "requêtes vers l'agent"}, {"number": "162", "transport": "UDP", "note": "notifications (traps, informs)"}],
+        "communication": [
+            {"from": "Superviseur", "to": "Agent (routeur)", "message": "GetRequest : OID ifHCInOctets.3"},
+            {"from": "Agent", "to": "Superviseur", "message": "Response : valeur du compteur"},
+            {"from": "Agent", "to": "Superviseur", "message": "Trap / Inform : « interface 3 hors service »", "note": "Notification spontanée vers le port 162."}
+        ],
+        "fields": [
+            {"name": "Version", "size": "—", "description": "v1, v2c (communauté en clair) ou v3 (authentification et chiffrement)."},
+            {"name": "Communauté / paramètres USM", "size": "—", "description": "Mot de passe partagé en v1/v2c ; utilisateur, authentification et confidentialité en v3."},
+            {"name": "Type de PDU", "size": "—", "description": "Get, GetNext, GetBulk, Set, Response, Trap, Inform."},
+            {"name": "Liste OID / valeur", "size": "variable", "description": "Identifiants d'objets de la MIB (par exemple 1.3.6.1.2.1.1.5.0 = sysName) et leurs valeurs."}
+        ],
+        "packet_example": {
+            "title": "Requête SNMP v2c dans Wireshark",
+            "lines": [
+                "1  0.000  10.0.0.5  10.0.0.1  SNMP  84  get-request 1.3.6.1.2.1.1.5.0",
+                "2  0.002  10.0.0.1  10.0.0.5  SNMP  97  get-response 1.3.6.1.2.1.1.5.0 \"routeur-campus\""
+            ],
+            "note": "En v2c, la communauté circule en clair : préférer SNMPv3."
+        },
+        "mistakes": [
+            "Laisser la communauté par défaut « public » : n'importe qui peut lire la configuration.",
+            "Croire que SNMPv2c est chiffré."
+        ],
+        "limits": ["Interrogation périodique (polling) : précision limitée par l'intervalle.", "Des approches modernes (télémétrie en continu, NETCONF/YANG) le complètent."],
+        "variants": ["SNMPv1", "SNMPv2c", "SNMPv3 (USM)"],
+        "references": [
+            {"label": "RFC 3411 — Architecture SNMP (SNMPv3)", "url": "https://www.rfc-editor.org/rfc/rfc3411"},
+            {"label": "RFC 3414 — User-based Security Model", "url": "https://www.rfc-editor.org/rfc/rfc3414"}
+        ],
+        "related": [{"slug": "udp", "type": "uses"}, {"slug": "syslog", "type": "complement"}, {"slug": "netconf", "type": "alternative"}, {"slug": "lldp", "type": "related"}],
+        "terms": ["udp", "serveur"]
+    },
+    {
+        "slug": "syslog",
+        "acronym": "Syslog",
+        "name": "Syslog",
+        "category": "supervision",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Envoie les journaux d'événements des équipements et serveurs vers un serveur central.",
+        "problem": "Rassembler en un seul endroit les messages de tous les équipements pour diagnostiquer et conserver une trace.",
+        "beginner": "Chaque équipement écrit un petit message à chaque événement (connexion, erreur, redémarrage) et l'envoie à un serveur de journaux.",
+        "analogy": "Le cahier de bord commun où chacun note ce qui se passe.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, sur UDP (ou TCP/TLS).",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "514", "transport": "UDP"}, {"number": "6514", "transport": "TCP", "note": "syslog sur TLS"}],
+        "mistakes": ["Croire que tous les messages arrivent : en UDP, des pertes sont possibles.", "Oublier de synchroniser l'heure (NTP) : les journaux deviennent impossibles à corréler."],
+        "limits": ["UDP non fiable et non chiffré par défaut."],
+        "variants": ["Niveaux de gravité 0 (urgence) à 7 (débogage)", "Format RFC 3164 (ancien) et RFC 5424"],
+        "references": [{"label": "RFC 5424 — The Syslog Protocol", "url": "https://www.rfc-editor.org/rfc/rfc5424"}],
+        "related": [{"slug": "ntp", "type": "complement"}, {"slug": "snmp", "type": "complement"}, {"slug": "udp", "type": "uses"}],
+        "terms": ["serveur"]
+    },
+    {
+        "slug": "ntp",
+        "acronym": "NTP",
+        "name": "Network Time Protocol",
+        "category": "supervision",
+        "status": "standard",
+        "completeness": "complete",
+        "summary": "Synchronise l'horloge des machines avec des sources de temps précises.",
+        "problem": "Des horloges décalées rendent les journaux incohérents, cassent la vérification des certificats et l'authentification (Kerberos).",
+        "beginner": "Ton ordinateur demande l'heure à un serveur de temps, en tenant compte du temps de trajet du message, et corrige doucement son horloge.",
+        "analogy": "Régler sa montre sur l'horloge de la gare, en tenant compte du temps pour arriver jusqu'à elle.",
+        "real_example": "Les routeurs d'un réseau d'entreprise se synchronisent sur un serveur NTP interne pour que leurs journaux soient comparables.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, sur UDP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "123", "transport": "UDP"}],
+        "communication": [
+            {"from": "Client", "to": "Serveur", "message": "Requête avec l'heure de départ (T1)"},
+            {"from": "Serveur", "to": "Client", "message": "Réponse avec l'heure de réception (T2) et d'émission (T3)"},
+            {"from": "Client", "to": "", "message": "Calcul du décalage et du délai avec l'heure d'arrivée (T4)", "note": "Décalage = ((T2 − T1) + (T3 − T4)) / 2"}
+        ],
+        "fields": [
+            {"name": "LI, version, mode", "size": "8 bits", "description": "Avertissement de seconde intercalaire, version (4), mode (client, serveur…)."},
+            {"name": "Stratum", "size": "8 bits", "description": "Distance à la source de référence : 1 = directement relié à une horloge de référence (GPS, atomique)."},
+            {"name": "Horodatages", "size": "4 × 64 bits", "description": "Référence, origine, réception, transmission."}
+        ],
+        "packet_example": {
+            "title": "Échange NTP dans Wireshark",
+            "lines": [
+                "1  0.000  192.168.1.10  192.0.2.123   NTP  90  NTP Version 4, client",
+                "2  0.024  192.0.2.123   192.168.1.10  NTP  90  NTP Version 4, server"
+            ]
+        },
+        "mistakes": ["Penser qu'un seul serveur suffit : en configurer plusieurs permet d'écarter une source fausse.", "Laisser un serveur NTP ouvert à tous : il peut servir à des attaques par amplification."],
+        "limits": ["Sans NTS, les réponses ne sont pas authentifiées.", "Précision de l'ordre de la milliseconde sur Internet ; PTP est utilisé pour plus de précision."],
+        "variants": ["SNTP (version simplifiée)", "NTS — Network Time Security (RFC 8915)", "PTP (IEEE 1588) pour la haute précision"],
+        "references": [{"label": "RFC 5905 — NTP Version 4", "url": "https://www.rfc-editor.org/rfc/rfc5905"}],
+        "related": [{"slug": "udp", "type": "uses"}, {"slug": "syslog", "type": "complement"}, {"slug": "tls", "type": "related", "note": "La vérification des certificats dépend d'une horloge juste."}],
+        "terms": ["latence", "udp"]
+    },
+    {
+        "slug": "netflow",
+        "acronym": "NetFlow",
+        "name": "NetFlow",
+        "category": "supervision",
+        "status": "proprietary",
+        "completeness": "essential",
+        "summary": "Exporte des résumés de flux (qui parle à qui, combien, sur quels ports) depuis les routeurs. Technologie d'origine Cisco.",
+        "problem": "Comprendre la composition du trafic sans enregistrer tous les paquets.",
+        "beginner": "Le routeur regroupe les paquets en « conversations » et envoie régulièrement un résumé : adresses, ports, volume, durée.",
+        "analogy": "Les relevés détaillés d'une facture de téléphone, sans le contenu des appels.",
+        "osi_note": "Couche 7 (export des enregistrements).",
+        "tcpip_note": "Couche application, sur UDP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "configurable", "transport": "UDP", "note": "souvent 2055 ou 9995 par convention"}],
+        "mistakes": ["Confondre flux et capture : NetFlow ne contient pas le contenu des paquets."],
+        "limits": ["L'échantillonnage peut masquer des petits flux."],
+        "variants": ["NetFlow v5 (format fixe)", "NetFlow v9 (modèles, RFC 3954 informative)"],
+        "references": [{"label": "RFC 3954 — Cisco Systems NetFlow Services Export Version 9 (informative)", "url": "https://www.rfc-editor.org/rfc/rfc3954"}],
+        "related": [{"slug": "ipfix", "type": "evolution"}, {"slug": "sflow", "type": "alternative"}],
+        "terms": ["debit"]
+    },
+    {
+        "slug": "ipfix",
+        "acronym": "IPFIX",
+        "name": "IP Flow Information Export",
+        "category": "supervision",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Le standard IETF d'export d'informations de flux, dérivé de NetFlow v9.",
+        "problem": "Disposer d'un format ouvert et extensible pour exporter des statistiques de flux, quel que soit le fabricant.",
+        "beginner": "Même idée que NetFlow, mais normalisée : n'importe quel équipement compatible peut envoyer ses résumés de trafic à n'importe quel collecteur.",
+        "analogy": "Un relevé de facture au format commun à tous les opérateurs.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "4739", "transport": "UDP/TCP/SCTP"}, {"number": "4740", "transport": "TCP/UDP", "note": "avec TLS / DTLS"}],
+        "mistakes": ["Croire qu'IPFIX inspecte le contenu applicatif : il exporte des métadonnées."],
+        "limits": ["Volume important sur les grands réseaux sans échantillonnage."],
+        "variants": ["Modèles (templates) et éléments d'information enregistrés à l'IANA"],
+        "references": [{"label": "RFC 7011 — IPFIX Protocol Specification", "url": "https://www.rfc-editor.org/rfc/rfc7011"}],
+        "related": [{"slug": "netflow", "type": "predecessor"}, {"slug": "sflow", "type": "alternative"}],
+        "terms": ["debit"]
+    },
+    {
+        "slug": "sflow",
+        "acronym": "sFlow",
+        "name": "sFlow",
+        "category": "supervision",
+        "status": "open-source",
+        "completeness": "essential",
+        "summary": "Surveillance du trafic par échantillonnage de paquets, spécifiée par le consortium sFlow.org.",
+        "problem": "Observer le trafic de commutateurs très rapides sans les surcharger.",
+        "beginner": "Le commutateur copie un paquet sur 1 000 (par exemple) et l'envoie à un collecteur, avec des compteurs. Statistiquement, on obtient une bonne image du trafic.",
+        "analogy": "Un sondage plutôt qu'un recensement.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, sur UDP.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "6343", "transport": "UDP"}],
+        "mistakes": ["Attendre de sFlow une vue exhaustive : c'est un échantillon."],
+        "limits": ["Précision statistique dépendante du taux d'échantillonnage."],
+        "variants": ["sFlow version 5"],
+        "references": [{"label": "sFlow.org — sFlow Version 5 Specification", "url": "https://sflow.org/sflow_version_5.txt"}],
+        "related": [{"slug": "netflow", "type": "alternative"}, {"slug": "ipfix", "type": "alternative"}],
+        "terms": ["debit"]
+    },
+    {
+        "slug": "netconf",
+        "acronym": "NETCONF",
+        "name": "Network Configuration Protocol",
+        "category": "supervision",
+        "status": "standard",
+        "completeness": "essential",
+        "summary": "Configure les équipements réseau de façon programmable, avec des modèles de données YANG.",
+        "problem": "Automatiser la configuration de centaines d'équipements de façon fiable, avec validation et retour arrière.",
+        "beginner": "Au lieu de taper des commandes sur chaque routeur, un programme envoie une configuration structurée ; l'équipement la vérifie avant de l'appliquer.",
+        "analogy": "Un formulaire officiel vérifié avant d'être enregistré, au lieu de notes manuscrites.",
+        "osi_note": "Couche 7.",
+        "tcpip_note": "Couche application, généralement sur SSH.",
+        "layers": ["osi-7", "tcpip-4"],
+        "ports": [{"number": "830", "transport": "TCP", "note": "NETCONF sur SSH"}],
+        "mistakes": ["Confondre NETCONF (protocole) et YANG (langage de modélisation des données)."],
+        "limits": ["Prise en charge variable selon les équipements et les modèles YANG proposés."],
+        "variants": ["RESTCONF (RFC 8040)", "gNMI"],
+        "references": [
+            {"label": "RFC 6241 — NETCONF", "url": "https://www.rfc-editor.org/rfc/rfc6241"},
+            {"label": "RFC 7950 — YANG 1.1", "url": "https://www.rfc-editor.org/rfc/rfc7950"}
+        ],
+        "related": [{"slug": "ssh", "type": "uses"}, {"slug": "snmp", "type": "alternative"}],
+        "terms": ["protocole"]
+    }
+]

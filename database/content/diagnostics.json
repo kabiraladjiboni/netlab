@@ -1,0 +1,584 @@
+[
+    {
+        "slug": "pas-d-adresse-ip",
+        "title": "Impossible d'obtenir une adresse IP",
+        "difficulty": "facile",
+        "summary": "Un ordinateur portable branché sur le réseau de l'école n'accède à rien, ni Internet ni imprimante.",
+        "symptoms": [
+            "Le navigateur indique « Pas d'accès à Internet ».",
+            "Le voyant de la prise réseau est allumé.",
+            "Les autres postes de la salle fonctionnent."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "ipconfig (sortie simplifiée)",
+                "lines": [
+                    "Carte Ethernet Ethernet :",
+                    "   Adresse IPv4 de liaison locale. . : 169.254.83.17",
+                    "   Masque de sous-réseau. . . . . . : 255.255.0.0",
+                    "   Passerelle par défaut. . . . . . :"
+                ]
+            },
+            {
+                "kind": "capture",
+                "title": "Capture sur le poste",
+                "lines": [
+                    "1  0.000  0.0.0.0  255.255.255.255  DHCP  342  DHCP Discover - Transaction ID 0x1d2e3f40",
+                    "2  4.012  0.0.0.0  255.255.255.255  DHCP  342  DHCP Discover - Transaction ID 0x1d2e3f40",
+                    "3  12.03  0.0.0.0  255.255.255.255  DHCP  342  DHCP Discover - Transaction ID 0x1d2e3f40"
+                ]
+            }
+        ],
+        "hints": [
+            "Regarde la plage de l'adresse obtenue : 169.254.x.x. D'où vient-elle ?",
+            "Dans la capture, combien de messages DHCP différents vois-tu ?",
+            "Le lien physique fonctionne (le DISCOVER part bien). Qui devrait répondre ?"
+        ],
+        "choices": [
+            "Le serveur DNS est en panne",
+            "Le câble réseau est débranché",
+            "Aucun serveur DHCP ne répond aux demandes du poste",
+            "L'adresse MAC de la carte est invalide"
+        ],
+        "answer": 2,
+        "explanation": "Le poste envoie des DHCP DISCOVER mais ne reçoit jamais d'OFFER : faute de réponse, il s'attribue une adresse lien-local 169.254.x.x (autoconfiguration). Le câble fonctionne puisque les trames partent. Causes possibles : serveur DHCP arrêté ou plage épuisée, agent relais absent sur le routeur, port du commutateur dans un mauvais VLAN. Le DNS n'intervient pas encore à ce stade.",
+        "related": [
+            {
+                "label": "Leçon DHCP",
+                "href": "/lecons/dhcp"
+            },
+            {
+                "label": "Fiche DHCP",
+                "href": "/protocoles/dhcpv4"
+            }
+        ]
+    },
+    {
+        "slug": "passerelle-inaccessible",
+        "title": "La passerelle ne répond pas",
+        "difficulty": "moyen",
+        "summary": "Après une configuration manuelle sous Linux, un poste communique avec certains appareils mais n'atteint pas Internet.",
+        "symptoms": [
+            "Les sites Web ne s'affichent pas.",
+            "Le poste a été configuré à la main par un stagiaire."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "ip -4 addr show eth0 (extrait)",
+                "lines": [
+                    "inet 192.168.2.50/24 brd 192.168.2.255 scope global eth0"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "ip route add default via 192.168.1.1",
+                "lines": [
+                    "Error: Nexthop has invalid gateway."
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "ping -c 2 192.168.1.1",
+                "lines": [
+                    "ping: connect: Network is unreachable"
+                ]
+            },
+            {
+                "kind": "note",
+                "title": "Plan d'adressage du site",
+                "lines": [
+                    "Réseau des bureaux : 192.168.1.0/24",
+                    "Passerelle : 192.168.1.1"
+                ]
+            }
+        ],
+        "hints": [
+            "Calcule le réseau du poste à partir de son adresse et de son masque.",
+            "La passerelle appartient-elle au même sous-réseau que le poste ?",
+            "Pour joindre sa passerelle, un poste doit pouvoir la contacter directement sur son réseau local."
+        ],
+        "choices": [
+            "Le routeur est éteint",
+            "L'adresse du poste n'est pas dans le même sous-réseau que la passerelle",
+            "Le serveur DNS est mal configuré",
+            "Le site Web est en panne"
+        ],
+        "answer": 1,
+        "explanation": "Avec 192.168.2.50/24, le poste est dans le réseau 192.168.2.0/24 ; la passerelle 192.168.1.1 n'appartient pas à ce réseau, il ne peut donc pas la joindre directement : le système refuse même d'installer la route par défaut. Il faut une adresse du réseau 192.168.1.0/24, par exemple 192.168.1.50. Le DNS ne serait utile qu'une fois la passerelle joignable.",
+        "related": [
+            {
+                "label": "Segmentation et sous-réseaux",
+                "href": "/segmentation"
+            },
+            {
+                "label": "Terme : passerelle",
+                "href": "/dictionnaire/passerelle"
+            }
+        ]
+    },
+    {
+        "slug": "dns-ne-resout-pas",
+        "title": "Un nom de domaine ne se résout pas",
+        "difficulty": "facile",
+        "summary": "Plus aucun site ne s'ouvre par son nom, mais un administrateur réussit à joindre un serveur par son adresse IP.",
+        "symptoms": [
+            "Tous les sites affichent « adresse introuvable ».",
+            "Une application qui utilise directement une adresse IP fonctionne."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "ping 198.51.100.20",
+                "lines": [
+                    "Réponse de 198.51.100.20 : octets=32 temps=31 ms TTL=56",
+                    "Réponse de 198.51.100.20 : octets=32 temps=30 ms TTL=56"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "nslookup www.example.com",
+                "lines": [
+                    "DNS request timed out.",
+                    "    timeout was 2 seconds.",
+                    "Serveur :   UnKnown",
+                    "Address:  192.0.2.99",
+                    "*** Le délai de la requête sur UnKnown a expiré"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "nslookup www.example.com 192.0.2.53",
+                "lines": [
+                    "Serveur :   resolveur.fai.example",
+                    "Address:  192.0.2.53",
+                    "Nom :    www.example.com",
+                    "Address:  198.51.100.20"
+                ]
+            }
+        ],
+        "hints": [
+            "La connectivité IP vers Internet fonctionne-t-elle ?",
+            "Quel serveur DNS le poste interroge-t-il par défaut ?",
+            "Que se passe-t-il quand on interroge un autre résolveur ?"
+        ],
+        "choices": [
+            "Le routage vers Internet est coupé",
+            "Le résolveur DNS configuré sur le poste ne répond pas",
+            "Le site www.example.com n'existe plus",
+            "Le pare-feu bloque le port 443"
+        ],
+        "answer": 1,
+        "explanation": "Le ping par adresse IP fonctionne : le routage est bon. La requête DNS vers 192.0.2.99 n'obtient aucune réponse, alors que le résolveur 192.0.2.53 répond correctement. Le poste est configuré avec un mauvais résolveur (ou ce résolveur est en panne). Il faut corriger la configuration DNS (souvent fournie par DHCP).",
+        "related": [
+            {
+                "label": "Leçon DNS",
+                "href": "/lecons/dns"
+            },
+            {
+                "label": "Variante « Erreur DNS »",
+                "href": "/lecons/acces-internet?variante=erreur-dns"
+            }
+        ]
+    },
+    {
+        "slug": "ip-oui-nom-non",
+        "title": "Le site répond par son IP mais pas par son nom",
+        "difficulty": "difficile",
+        "summary": "Sur un seul poste, www.example.com mène à une page d'erreur, alors que le site fonctionne ailleurs et qu'il s'ouvre en tapant son adresse IP.",
+        "symptoms": [
+            "Le problème ne concerne qu'un seul ordinateur.",
+            "nslookup donne pourtant la bonne adresse."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "nslookup www.example.com",
+                "lines": [
+                    "Nom :    www.example.com",
+                    "Address:  198.51.100.20"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "ping www.example.com",
+                "lines": [
+                    "Envoi d'une requête 'ping' sur www.example.com [198.51.100.99] avec 32 octets de données :",
+                    "Délai d'attente de la demande dépassé."
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "Contenu du fichier hosts (extrait)",
+                "lines": [
+                    "127.0.0.1       localhost",
+                    "198.51.100.99   www.example.com    # ancien serveur de test"
+                ]
+            }
+        ],
+        "hints": [
+            "nslookup et ping trouvent-ils la même adresse ?",
+            "nslookup interroge directement le serveur DNS ; le système, lui, consulte d'abord d'autres sources.",
+            "Regarde le fichier hosts."
+        ],
+        "choices": [
+            "Le serveur DNS renvoie une mauvaise adresse",
+            "Une entrée obsolète du fichier hosts remplace la réponse DNS",
+            "Le site est hors service",
+            "La box bloque le site"
+        ],
+        "answer": 1,
+        "explanation": "nslookup interroge directement le serveur DNS et obtient la bonne adresse (198.51.100.20). Mais les applications utilisent le résolveur du système, qui consulte d'abord le fichier hosts : celui-ci force l'ancienne adresse 198.51.100.99. Il faut supprimer la ligne puis vider le cache DNS du système. Les adresses sont illustratives.",
+        "related": [
+            {
+                "label": "Terme : cache DNS",
+                "href": "/dictionnaire/cache-dns"
+            },
+            {
+                "label": "Fiche DNS",
+                "href": "/protocoles/dns"
+            }
+        ]
+    },
+    {
+        "slug": "connexion-tcp-echoue",
+        "title": "Une connexion TCP n'aboutit jamais",
+        "difficulty": "moyen",
+        "summary": "Une application interne sur le port 8443 met longtemps à répondre puis affiche « délai d'attente dépassé ».",
+        "symptoms": [
+            "Le serveur répond au ping.",
+            "Le message d'erreur arrive après plus de 20 secondes."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "ping app.interne.example",
+                "lines": [
+                    "Réponse de 10.10.20.15 : octets=32 temps=2 ms TTL=63"
+                ]
+            },
+            {
+                "kind": "capture",
+                "title": "Capture sur le poste",
+                "lines": [
+                    "1  0.000  10.10.10.21  10.10.20.15  TCP  66  52811 → 8443 [SYN] Seq=0 Win=64240 Len=0 MSS=1460",
+                    "2  1.004  10.10.10.21  10.10.20.15  TCP  66  [TCP Retransmission] 52811 → 8443 [SYN] Seq=0",
+                    "3  3.012  10.10.10.21  10.10.20.15  TCP  66  [TCP Retransmission] 52811 → 8443 [SYN] Seq=0",
+                    "4  7.030  10.10.10.21  10.10.20.15  TCP  66  [TCP Retransmission] 52811 → 8443 [SYN] Seq=0"
+                ]
+            }
+        ],
+        "hints": [
+            "Le serveur est-il joignable au niveau IP ?",
+            "Reçoit-on une réponse quelconque au SYN (SYN-ACK ou RST) ?",
+            "Qu'est-ce qui peut faire disparaître un paquet sans aucune réponse ?"
+        ],
+        "choices": [
+            "Le service n'est pas démarré : le serveur refuse la connexion",
+            "Un filtrage détruit silencieusement les paquets vers le port 8443",
+            "Le DNS renvoie une mauvaise adresse",
+            "Le câble du poste est défectueux"
+        ],
+        "answer": 1,
+        "explanation": "Le serveur répond au ping, mais aucun SYN-ACK ni RST ne revient : les SYN sont retransmis (1 s, 2 s, 4 s…). Un service simplement arrêté répondrait immédiatement par un RST. Ce silence est typique d'un pare-feu (sur le chemin ou sur le serveur) appliquant une règle « DROP » sur ce port.",
+        "related": [
+            {
+                "label": "Variante « Port bloqué »",
+                "href": "/lecons/acces-internet?variante=port-bloque"
+            },
+            {
+                "label": "Terme : retransmission TCP",
+                "href": "/dictionnaire/retransmission-tcp"
+            }
+        ]
+    },
+    {
+        "slug": "serveur-refuse",
+        "title": "Le serveur refuse la connexion",
+        "difficulty": "facile",
+        "summary": "Après une mise à jour du serveur, le site interne affiche immédiatement « connexion refusée ».",
+        "symptoms": [
+            "L'erreur apparaît instantanément.",
+            "Le serveur répond au ping."
+        ],
+        "observations": [
+            {
+                "kind": "capture",
+                "title": "Capture sur le poste",
+                "lines": [
+                    "1  0.000  10.10.10.21  10.10.20.15  TCP  66  52812 → 443 [SYN] Seq=0 Win=64240 Len=0 MSS=1460",
+                    "2  0.002  10.10.20.15  10.10.10.21  TCP  54  443 → 52812 [RST, ACK] Seq=1 Ack=1 Win=0 Len=0"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "Sur le serveur : ss -ltn (ports TCP en écoute)",
+                "lines": [
+                    "State   Local Address:Port",
+                    "LISTEN  0.0.0.0:22"
+                ]
+            }
+        ],
+        "hints": [
+            "La réponse arrive-t-elle vite ou après un long délai ?",
+            "Que signifie le drapeau RST ?",
+            "Quels ports sont en écoute sur le serveur ?"
+        ],
+        "choices": [
+            "Un pare-feu détruit les paquets",
+            "Aucun programme n'écoute sur le port 443 du serveur",
+            "Le certificat TLS est expiré",
+            "La table ARP du poste est vide"
+        ],
+        "answer": 1,
+        "explanation": "Le serveur répond immédiatement par RST, ACK : il est joignable mais aucun service n'écoute sur le port 443 (seul le port 22 est ouvert). Le serveur Web ne s'est pas relancé après la mise à jour. Un pare-feu en mode DROP aurait produit un délai, et un problème de certificat n'apparaîtrait qu'après l'établissement de la connexion TCP.",
+        "related": [
+            {
+                "label": "Variante « Échec de connexion »",
+                "href": "/lecons/acces-internet?variante=echec-serveur"
+            },
+            {
+                "label": "Leçon TCP",
+                "href": "/lecons/tcp-handshake"
+            }
+        ]
+    },
+    {
+        "slug": "vlan-mal-configure",
+        "title": "Un poste isolé dans le mauvais VLAN",
+        "difficulty": "moyen",
+        "summary": "Un nouveau poste de la comptabilité n'accède pas à l'imprimante du service, contrairement à ses voisins. Scénario illustratif.",
+        "symptoms": [
+            "Le poste a une adresse IP et accède à Internet.",
+            "L'imprimante du service (10.10.10.40) est injoignable depuis ce poste uniquement."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "ipconfig du poste",
+                "lines": [
+                    "Adresse IPv4 . . . . . . . . . : 10.20.20.57",
+                    "Masque de sous-réseau. . . . . : 255.255.255.0",
+                    "Passerelle par défaut. . . . . : 10.20.20.1"
+                ]
+            },
+            {
+                "kind": "note",
+                "title": "Postes voisins de la comptabilité",
+                "lines": [
+                    "Adresses en 10.10.10.0/24, passerelle 10.10.10.1"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "Configuration du port du commutateur (extrait)",
+                "lines": [
+                    "interface GigabitEthernet0/7",
+                    " description Compta-Poste-12",
+                    " switchport mode access",
+                    " switchport access vlan 20"
+                ]
+            },
+            {
+                "kind": "note",
+                "title": "Plan des VLAN",
+                "lines": [
+                    "VLAN 10 : Comptabilité — 10.10.10.0/24",
+                    "VLAN 20 : Invités — 10.20.20.0/24 (accès Internet seulement)"
+                ]
+            }
+        ],
+        "hints": [
+            "Dans quel sous-réseau le poste se trouve-t-il, comparé à ses voisins ?",
+            "Quel VLAN est configuré sur son port ?",
+            "Le réseau invité a-t-il le droit d'accéder aux équipements internes ?"
+        ],
+        "choices": [
+            "L'imprimante est en panne",
+            "Le port du commutateur est placé dans le VLAN des invités au lieu du VLAN 10",
+            "Le poste n'a pas de passerelle",
+            "Le serveur DHCP est arrêté"
+        ],
+        "answer": 1,
+        "explanation": "Le port Gi0/7 est en VLAN 20 (invités) : le poste reçoit une adresse du réseau invité, qui n'a accès qu'à Internet. Il faut placer le port dans le VLAN 10. Le DHCP fonctionne (une adresse a été obtenue) et l'imprimante répond aux autres postes.",
+        "related": [
+            {
+                "label": "Leçon VLAN",
+                "href": "/lecons/vlan"
+            },
+            {
+                "label": "Segmentation",
+                "href": "/segmentation"
+            }
+        ]
+    },
+    {
+        "slug": "probleme-mtu",
+        "title": "Les petites pages s'ouvrent, les grosses restent bloquées",
+        "difficulty": "difficile",
+        "summary": "Depuis le passage à une nouvelle offre PPPoE, certains sites restent figés en chargement alors que d'autres fonctionnent.",
+        "symptoms": [
+            "Les connexions s'établissent (la page commence à charger).",
+            "Les transferts volumineux restent bloqués.",
+            "Le problème touche tous les postes du site."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "ping -f -l 1472 198.51.100.20 (DF activé, 1472 + 28 = 1500 octets)",
+                "lines": [
+                    "Le paquet doit être fragmenté, mais l'indicateur DF est activé."
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "ping -f -l 1464 198.51.100.20 (1464 + 28 = 1492 octets)",
+                "lines": [
+                    "Réponse de 198.51.100.20 : octets=1464 temps=33 ms TTL=56"
+                ]
+            },
+            {
+                "kind": "note",
+                "title": "Pare-feu du site",
+                "lines": [
+                    "Règle : bloquer tous les messages ICMP entrants"
+                ]
+            }
+        ],
+        "hints": [
+            "Quelle est la taille maximale qui passe sans fragmentation ?",
+            "Quelle MTU est typique d'une liaison PPPoE ?",
+            "Comment l'émetteur apprend-il normalement qu'un paquet est trop grand ?"
+        ],
+        "choices": [
+            "Le serveur DNS est trop lent",
+            "Un problème de MTU : les paquets de 1500 octets ne passent pas et les messages ICMP qui devraient le signaler sont bloqués",
+            "Le câble est défectueux",
+            "Le serveur refuse les connexions"
+        ],
+        "answer": 1,
+        "explanation": "Avec PPPoE, la MTU passe à 1492 octets. Les gros paquets marqués DF sont rejetés, et le routeur renvoie normalement un ICMP « Fragmentation Needed » pour que l'émetteur réduise la taille (découverte de la MTU du chemin). Le pare-feu bloquant ICMP, ces messages n'arrivent jamais : c'est un « trou noir ». Solutions : laisser passer ces ICMP et ajuster le MSS TCP (MSS clamping à 1452) sur le routeur.",
+        "related": [
+            {
+                "label": "Terme : MTU",
+                "href": "/dictionnaire/mtu"
+            },
+            {
+                "label": "Fiche PPPoE",
+                "href": "/protocoles/pppoe"
+            }
+        ]
+    },
+    {
+        "slug": "pare-feu-port-25",
+        "title": "Les courriels ne partent plus",
+        "difficulty": "moyen",
+        "summary": "Un petit serveur d'application envoie ses notifications par SMTP sur le port 25 ; depuis un changement de fournisseur d'accès, plus rien ne part.",
+        "symptoms": [
+            "Aucune erreur côté serveur de messagerie destinataire.",
+            "L'application signale des délais dépassés à l'envoi."
+        ],
+        "observations": [
+            {
+                "kind": "command",
+                "title": "Test-NetConnection smtp.example.com -Port 25",
+                "lines": [
+                    "ComputerName     : smtp.example.com",
+                    "RemoteAddress    : 198.51.100.30",
+                    "RemotePort       : 25",
+                    "TcpTestSucceeded : False"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "Test-NetConnection smtp.example.com -Port 587",
+                "lines": [
+                    "RemotePort       : 587",
+                    "TcpTestSucceeded : True"
+                ]
+            }
+        ],
+        "hints": [
+            "Le serveur de messagerie est-il joignable sur un autre port ?",
+            "Quel port est prévu pour la soumission de messages par un client authentifié ?",
+            "Beaucoup de fournisseurs d'accès filtrent un port précis pour lutter contre le spam."
+        ],
+        "choices": [
+            "Le serveur de messagerie est éteint",
+            "Le port 25 sortant est bloqué ; il faut utiliser la soumission authentifiée sur le port 587",
+            "Le DNS ne connaît pas smtp.example.com",
+            "Le certificat TLS est invalide"
+        ],
+        "answer": 1,
+        "explanation": "Le serveur est joignable sur 587 mais pas sur 25 : un filtrage (fréquent chez les FAI pour limiter le spam) bloque le port 25 sortant. Une application doit soumettre ses messages sur le port 587 (STARTTLS + authentification) ou 465, le port 25 étant réservé au relais entre serveurs.",
+        "related": [
+            {
+                "label": "Fiche SMTP",
+                "href": "/protocoles/smtp"
+            },
+            {
+                "label": "Terme : pare-feu",
+                "href": "/dictionnaire/pare-feu"
+            }
+        ]
+    },
+    {
+        "slug": "certificat-invalide",
+        "title": "Tous les sites HTTPS affichent une alerte de certificat",
+        "difficulty": "moyen",
+        "summary": "Sur un ordinateur rallumé après une longue période, tous les sites sécurisés affichent un avertissement de sécurité.",
+        "symptoms": [
+            "Le problème touche tous les sites HTTPS, même les plus connus.",
+            "Les autres appareils du réseau fonctionnent normalement."
+        ],
+        "observations": [
+            {
+                "kind": "note",
+                "title": "Message du navigateur",
+                "lines": [
+                    "Votre connexion n'est pas privée",
+                    "NET::ERR_CERT_DATE_INVALID"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "Date et heure du système",
+                "lines": [
+                    "mardi 1 janvier 2019 08:02"
+                ]
+            },
+            {
+                "kind": "command",
+                "title": "Détails d'un certificat (extrait)",
+                "lines": [
+                    "Valide à partir du : 12/03/2026",
+                    "Valide jusqu'au     : 10/06/2026"
+                ]
+            }
+        ],
+        "hints": [
+            "Un seul site ou tous les sites ?",
+            "Compare la date du système avec la période de validité du certificat.",
+            "Quel protocole sert à garder l'horloge à l'heure ?"
+        ],
+        "choices": [
+            "Tous les sites ont laissé expirer leur certificat",
+            "L'horloge de l'ordinateur est fausse : les certificats paraissent « pas encore valides »",
+            "Le DNS renvoie de mauvaises adresses",
+            "Le port 443 est bloqué"
+        ],
+        "answer": 1,
+        "explanation": "La vérification d'un certificat compare sa période de validité avec l'heure locale. Avec une horloge réglée en 2019, tous les certificats semblent « pas encore valides ». Il faut corriger l'heure (synchronisation NTP, pile de la carte mère). Si un seul site posait problème, il faudrait plutôt suspecter son certificat (expiré, nom incorrect, chaîne incomplète).",
+        "related": [
+            {
+                "label": "Leçon TLS",
+                "href": "/lecons/tls"
+            },
+            {
+                "label": "Fiche NTP",
+                "href": "/protocoles/ntp"
+            }
+        ]
+    }
+]
